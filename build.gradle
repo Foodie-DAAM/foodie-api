@@ -1,0 +1,28 @@
+plugins {
+	id 'org.springframework.boot' version '2.3.0.M2'
+	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'java'
+}
+
+group = 'net.sandrohc.foodie'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = JavaVersion.VERSION_13
+
+repositories {
+	mavenCentral()
+	maven { url 'https://repo.spring.io/milestone' }
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+	runtimeOnly 'org.postgresql:postgresql'
+
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	testImplementation 'org.springframework.batch:spring-batch-test'
+}
+
+test {
+	useJUnitPlatform()
+}
