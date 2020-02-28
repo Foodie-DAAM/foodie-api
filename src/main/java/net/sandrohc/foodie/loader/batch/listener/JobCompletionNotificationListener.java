@@ -2,7 +2,7 @@
  * Copyright (c) 2020. Authored by SandroHc
  */
 
-package net.sandrohc.foodie.loader;
+package net.sandrohc.foodie.loader.batch.listener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +28,6 @@ public class JobCompletionNotificationListener extends JobExecutionListenerSuppo
 	@Override
 	public void afterJob(JobExecution jobExecution) {
 		if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
-			LOG.info("!!! JOB FINISHED! Time to verify the results");
-
 			jdbcTemplate.query("SELECT COUNT(*) FROM recipe", (rs, row) -> rs.getLong(1))
 					.forEach(count -> LOG.info("Found " + count + " results in the database."));
 		}

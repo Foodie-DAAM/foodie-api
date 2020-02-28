@@ -2,7 +2,7 @@
  * Copyright (c) 2020. Authored by SandroHc
  */
 
-package net.sandrohc.foodie.loader;
+package net.sandrohc.foodie.loader.batch;
 
 public class MissingUrlException extends Exception {
 

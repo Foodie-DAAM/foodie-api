@@ -8,15 +8,15 @@ import java.util.Collection;
 
 public class RecipeJson {
 
-	private String url;
-	private String title;
-	private String description;
-	private Collection<String> ingredients;
-	private Collection<String> instructions;
-	private int total_time;
-	private String yields;
-	private String picture;
-	private String nutrition_facts;
+	protected String url;
+	protected String title;
+	protected String description;
+	protected Collection<String> ingredients;
+	protected Collection<String> instructions;
+	protected int total_time;
+	protected String yields;
+	protected String picture;
+	protected String nutrition_facts;
 
 	public RecipeJson() {
 	}

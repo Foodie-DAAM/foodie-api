@@ -2,7 +2,7 @@
  * Copyright (c) 2020. Authored by SandroHc
  */
 
-package net.sandrohc.foodie.loader.processor;
+package net.sandrohc.foodie.loader.batch;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -10,19 +10,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import net.sandrohc.foodie.loader.MissingUrlException;
 import net.sandrohc.foodie.loader.model.Recipe;
 import net.sandrohc.foodie.loader.model.RecipeJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 
-public class RecipeItemProcessor implements ItemProcessor<RecipeJson, Recipe> {
+public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 
-	private static final Logger LOG = LoggerFactory.getLogger(RecipeItemProcessor.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RecipeProcessor.class);
 
-	private static final Pattern PATTERN_ID = Pattern.compile("allrecipes\\.com/recipe/(\\d+)/");
-	private static final Pattern PATTERN_SERVINGS = Pattern.compile("(\\d+) serving");
+	private static final Pattern PATTERN_ID = Pattern.compile("^https?://(?:www\\.)?allrecipes\\.com/recipe/(\\d{1,10})/");
+	private static final Pattern PATTERN_SERVINGS = Pattern.compile("^(\\d{1,4})");
+	private static final Pattern PATTERN_STEP = Pattern.compile("^Step \\d{1,3} ?");
 
 
 	@Override
@@ -44,7 +44,7 @@ public class RecipeItemProcessor implements ItemProcessor<RecipeJson, Recipe> {
 		processSteps(from, to);
 		processNutrition(from, to);
 
-		LOG.info("Processed: " + to);
+		LOG.trace("Processed: " + to);
 
 		return to;
 	}
@@ -67,17 +67,17 @@ public class RecipeItemProcessor implements ItemProcessor<RecipeJson, Recipe> {
 
 	private void processSteps(RecipeJson from, Recipe to) {
 		to.setSteps(from.getInstructions().stream()
-				.map(RecipeItemProcessor::clean)
-				.map(s -> s == null ? null : s.replaceFirst("Step \\d+ ?", ""))
-				.filter(Objects::nonNull)
-				.collect(Collectors.joining(";")));
+				.map(RecipeProcessor::clean)
+				.map(s -> s == null ? null : PATTERN_STEP.matcher(s).replaceFirst("").trim())
+				.filter(s -> s != null && !s.isEmpty())
+				.collect(Collectors.joining("\n")));
 	}
 
 	private void processIngredients(RecipeJson from, Recipe to) {
 		to.setIngredients(from.getIngredients().stream()
-				.map(RecipeItemProcessor::clean)
+				.map(RecipeProcessor::clean)
 				.filter(Objects::nonNull)
-				.collect(Collectors.joining(";")));
+				.collect(Collectors.joining("\n")));
 	}
 
 	private void processNutrition(RecipeJson from, Recipe to) {
@@ -91,16 +91,17 @@ public class RecipeItemProcessor implements ItemProcessor<RecipeJson, Recipe> {
 		nutrition = nutrition.replace(". ", ";");
 
 		// normalize delimiters
-		nutrition = nutrition.replace("\n", ";");
+		nutrition = nutrition.replace(";", "\n");
+		nutrition = nutrition.replace("\\n", "\n");
 
-		to.setNutritionFacts(Arrays.stream(nutrition.split(";"))
-				.map(RecipeItemProcessor::clean)
+		to.setNutritionFacts(Arrays.stream(nutrition.split("\n"))
+				.map(RecipeProcessor::clean)
 				.filter(Objects::nonNull)
 				.filter(s -> !"Per Serving:".equalsIgnoreCase(s) && !"Full Nutrition".equalsIgnoreCase(s))
 				.map(s -> s.replace("total fat", "fat"))
 				// remove last char, if not alphanumeric
 				.map(s -> Character.isLetterOrDigit(s.charAt(s.length() - 1)) ? s : s.substring(0, s.length() - 1))
-				.collect(Collectors.joining(";")));
+				.collect(Collectors.joining("\n")));
 	}
 
 	private static String clean(String str) {
@@ -111,11 +112,11 @@ public class RecipeItemProcessor implements ItemProcessor<RecipeJson, Recipe> {
 		str = str.trim().replace("  ", " ");
 
 		if (str.startsWith("\""))
-			str = str.substring(1);
+			str = str.substring(1).trim();
 		if (str.endsWith("\"") || str.endsWith(";"))
-			str = str.substring(0, str.length() - 1);
+			str = str.substring(0, str.length() - 1).trim();
 
-		return str.isBlank() ? null : str;
+		return str.isEmpty() ? null : str;
 	}
 
 }

@@ -2,26 +2,22 @@
  * Copyright (c) 2020. Authored by SandroHc
  */
 
-package net.sandrohc.foodie.loader.config;
+package net.sandrohc.foodie.loader.batch;
 
 import java.io.IOException;
 
 import javax.sql.DataSource;
 
-import net.sandrohc.foodie.loader.JobCompletionNotificationListener;
-import net.sandrohc.foodie.loader.MissingUrlException;
+import net.sandrohc.foodie.loader.batch.listener.JobCompletionNotificationListener;
 import net.sandrohc.foodie.loader.model.Recipe;
 import net.sandrohc.foodie.loader.model.RecipeJson;
-import net.sandrohc.foodie.loader.processor.RecipeItemProcessor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
@@ -35,16 +31,15 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 
 @Configuration
 @EnableBatchProcessing
-public class BatchConfiguration {
+public class RecipeJob {
 
 	public final JobBuilderFactory jobBuilderFactory;
 	public final StepBuilderFactory stepBuilderFactory;
 
-	public BatchConfiguration(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory) {
+	public RecipeJob(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory) {
 		this.jobBuilderFactory = jobBuilderFactory;
 		this.stepBuilderFactory = stepBuilderFactory;
 	}
@@ -68,8 +63,8 @@ public class BatchConfiguration {
 	}
 
 	@Bean
-	public RecipeItemProcessor processor() {
-		return new RecipeItemProcessor();
+	public RecipeProcessor processor() {
+		return new RecipeProcessor();
 	}
 
 	@Bean
@@ -86,7 +81,7 @@ public class BatchConfiguration {
 
 	@Bean
 	public Job importRecipeJob(JobCompletionNotificationListener listener, Step step1) {
-		return jobBuilderFactory.get("importRecipeJob")
+		return jobBuilderFactory.get("load recipes")
 				.incrementer(new RunIdIncrementer())
 				.listener(listener)
 				.flow(step1)
