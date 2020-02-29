@@ -6,6 +6,8 @@ package net.sandrohc.foodie.loader.batch;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -19,6 +21,8 @@ import org.springframework.batch.item.ItemProcessor;
 public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RecipeProcessor.class);
+
+	private final Set<Long> processed = ConcurrentHashMap.newKeySet();
 
 	private static final Pattern PATTERN_ID = Pattern.compile("^https?://(?:www\\.)?allrecipes\\.com/recipe/(\\d{1,10})/");
 	private static final Pattern PATTERN_SERVINGS = Pattern.compile("^(\\d{1,4})");
@@ -38,7 +42,20 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 		to.setDuration(from.getTotal_time());
 		to.setPicture(from.getPicture());
 
-		processId(from, to);
+		Long id = processId(from, to);
+
+		if (id == null) {
+			LOG.warn("Recipe doesn't have a valid ID: " + from.getUrl());
+			return null;
+		}
+
+		if (processed.contains(id)) {
+			LOG.trace("Recipe with ID was already processed: " + id);
+			return null;
+		} else {
+			processed.add(id);
+		}
+
 		processServings(from, to);
 		processIngredients(from, to);
 		processSteps(from, to);
@@ -49,12 +66,15 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 		return to;
 	}
 
-	private void processId(RecipeJson from, Recipe to) {
+	private Long processId(RecipeJson from, Recipe to) {
 		Matcher matcherId = PATTERN_ID.matcher(from.getUrl());
 		if (matcherId.find()) {
 			long id = Long.parseLong(matcherId.group(1));
 			to.setId(id);
+			return id;
 		}
+
+		return null;
 	}
 
 	private void processServings(RecipeJson from, Recipe to) {
