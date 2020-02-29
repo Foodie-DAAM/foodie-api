@@ -11,4 +11,7 @@ pluginManagement {
 		}
 	}
 }
-rootProject.name = 'foodie-loader'
+
+rootProject.name = 'foodie-backend'
+
+include ':loader'
