@@ -1,0 +1,31 @@
+logging:
+  level:
+#    org.hibernate:
+#      SQL: DEBUG
+#      type.descriptor.sql.BasicBinder: TRACE
+#    org.springframework.jdbc.core:
+#      JdbcTemplate: DEBUG
+#      StatementCreatorUtils: TRACE
+    net.sandrohc: DEBUG
+
+spring:
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:postgresql://localhost:10001/foodie
+    username: foodie
+    password: foodie
+  jpa:
+#    show-sql: true
+    properties:
+      hibernate:
+#        format_sql: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+#    hibernate:
+#      ddl-auto: none  ???  create
+  batch:
+    job.enabled: false
+    initialize-schema: always
+  flyway:
+    sql-migration-prefix: ''
+    sql-migration-separator: '-'

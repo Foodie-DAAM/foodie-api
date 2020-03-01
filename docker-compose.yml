@@ -1,0 +1,31 @@
+version: '3.7'
+
+services:
+  api:
+    depends_on:
+      - db
+    image: foodie
+    build: api/
+    restart: "no"
+    ports:
+      - "10000:8080"
+    networks:
+      - backend
+  db:
+    image: postgres
+    restart: unless-stopped
+    command: ["postgres", "-c", "log_statement=all", "-p", "5432"]
+    volumes:
+      - db:/var/lib/postgresql/data
+    ports:
+      - "10001:5432"
+    networks:
+      - backend
+    environment:
+      - POSTGRES_DB=foodie
+      - POSTGRES_USER=foodie
+      - POSTGRES_PASSWORD=foodie
+networks:
+  backend:
+volumes:
+  db:
