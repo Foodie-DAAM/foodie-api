@@ -14,7 +14,7 @@ services:
   db:
     image: postgres
     restart: unless-stopped
-    command: ["postgres", "-c", "log_statement=all", "-p", "5432"]
+    command: ["postgres", "-c", "log_statement=all"]
     volumes:
       - db:/var/lib/postgresql/data
     ports:

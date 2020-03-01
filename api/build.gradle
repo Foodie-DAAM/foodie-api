@@ -1,9 +1,7 @@
 plugins {
 	id 'org.springframework.boot' version '2.3.0.M2'
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-	id 'org.asciidoctor.convert' version '1.5.8'
 	id 'java'
-	id 'application'
 }
 
 java {
@@ -23,8 +21,8 @@ repositories {
 	maven { url 'https://repo.spring.io/milestone' }
 }
 
-ext {
-	set('snippetsDir', file("build/generated-snippets"))
+dependencyManagement {
+	applyMavenExclusions = false
 }
 
 dependencies {
@@ -47,15 +45,5 @@ dependencies {
 }
 
 test {
-	outputs.dir snippetsDir
 	useJUnitPlatform()
-}
-
-asciidoctor {
-	inputs.dir snippetsDir
-	dependsOn test
-}
-
-application {
-	mainClassName = 'net.sandrohc.foodie.api.Application'
 }
