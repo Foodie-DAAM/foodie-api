@@ -5,6 +5,9 @@
 package net.sandrohc.foodie.batch;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,6 +17,9 @@ import java.util.stream.Collectors;
 
 import net.sandrohc.foodie.model.Recipe;
 import net.sandrohc.foodie.batch.model.RecipeJson;
+import net.sandrohc.foodie.model.RecipeIngredient;
+import net.sandrohc.foodie.model.RecipeStep;
+import net.sandrohc.foodie.model.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -24,9 +30,10 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 
 	private final Set<Long> processed = ConcurrentHashMap.newKeySet();
 
-	private static final Pattern PATTERN_ID = Pattern.compile("^https?://(?:www\\.)?allrecipes\\.com/recipe/(\\d{1,10})/");
-	private static final Pattern PATTERN_SERVINGS = Pattern.compile("^(\\d{1,4})");
-	private static final Pattern PATTERN_STEP = Pattern.compile("^Step \\d{1,3} ?");
+	private static final Pattern PATTERN_ID         = Pattern.compile("^https?://(?:www\\.)?allrecipes\\.com/recipe/(\\d{1,10})/");
+	private static final Pattern PATTERN_SERVINGS   = Pattern.compile("^(\\d{1,4})");
+	private static final Pattern PATTERN_STEP       = Pattern.compile("^Step \\d{1,3} ?");
+	private static final Pattern PATTERN_INGREDIENT = Pattern.compile("^(?<quantity>(?:\\d|/)+|\\\\u\\w*)? ?(?<unit>tablespoons?|teaspoons?|cups?)? ?(?<name>.*?)(?:, ?(?<extra>.*))?$");
 
 
 	@Override
@@ -90,14 +97,54 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 				.map(RecipeProcessor::clean)
 				.map(s -> s == null ? null : PATTERN_STEP.matcher(s).replaceFirst("").trim())
 				.filter(s -> s != null && !s.isEmpty())
-				.collect(Collectors.joining("\n")));
+				.map(s -> new RecipeStep(to, s))
+				.collect(Collectors.toList()));
 	}
 
 	private void processIngredients(RecipeJson from, Recipe to) {
 		to.setIngredients(from.getIngredients().stream()
 				.map(RecipeProcessor::clean)
 				.filter(Objects::nonNull)
-				.collect(Collectors.joining("\n")));
+				.map(s -> processIngredient(to, s))
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList()));
+	}
+
+	private RecipeIngredient processIngredient(Recipe recipe, String str) {
+		// name, unit, quantity
+
+		Map<String, String> replacements = new HashMap<>();
+		replacements.put("\u00bc", "1/4");
+		replacements.put("\u00bd", "1/2");
+		replacements.put("\u00be", "3/4");
+		replacements.put("\u2150", "1/7");
+		replacements.put("\u2151", "1/9");
+		replacements.put("\u2152", "1/10");
+		replacements.put("\u2153", "1/3");
+		replacements.put("\u2154", "2/3");
+		replacements.put("\u2155", "1/5");
+		replacements.put("\u2156", "2/5");
+		replacements.put("\u2157", "3/5");
+		replacements.put("\u2158", "4/5");
+
+		for (Entry<String, String> replacement : replacements.entrySet()) {
+			str = str.replace(replacement.getKey(), replacement.getValue());
+		}
+
+		Matcher matcher = PATTERN_INGREDIENT.matcher(str);
+
+		if (!matcher.find()) {
+			LOG.warn("INVALID INGREDIENT: " + str);
+			return null;
+		}
+
+		// TODO
+		String quantity = matcher.group("quantity");
+		String unit = matcher.group("unit");
+		String name = matcher.group("name");
+		String extra = matcher.group("extra");
+
+		return new RecipeIngredient(recipe, name, Unit.GRAMS, 0, extra);
 	}
 
 	private void processNutrition(RecipeJson from, Recipe to) {

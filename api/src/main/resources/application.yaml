@@ -21,8 +21,8 @@ spring:
       hibernate:
 #        format_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
-#    hibernate:
-#      ddl-auto: none  ???  create
+    hibernate:
+      ddl-auto: create # none/create
   batch:
     job.enabled: false
     initialize-schema: always
