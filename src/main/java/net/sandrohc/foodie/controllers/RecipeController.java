@@ -6,6 +6,9 @@ package net.sandrohc.foodie.controllers;
 
 import java.util.Date;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import net.sandrohc.foodie.model.Recipe;
 import net.sandrohc.foodie.services.RecipeService;
 import org.slf4j.Logger;
@@ -27,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-//@Tag(name="Recipes", description="Gives access to available recipes.")
+@Tag(name="Recipes", description="Gives access to available recipes.")
 @RestController
 @RequestMapping("/recipe")
 public class RecipeController {
@@ -63,19 +66,19 @@ public class RecipeController {
 		}
 	}
 
-//	@ApiResponses(value = {
-//			@ApiResponse(responseCode="200", description="get All Recipes")
-//	})
+	@ApiResponses(value = {
+			@ApiResponse(responseCode="200", description="get All Recipes")
+	})
 	@GetMapping(produces=MediaType.APPLICATION_JSON_VALUE)
-	public Page<Recipe> getAllByPage(Pageable page) {
+	public Page<Recipe> getAll(Pageable page) {
 		PageRequest pageRequest = PageRequest.of(page.getPageNumber(), page.getPageSize(), page.getSortOr(Sort.by("title")));
 		return recipeService.getAllByPage(pageRequest);
 	}
 
-//	@ApiResponses(value = {
-//			@ApiResponse(responseCode="200", description="get Recipe by ID"),
-//			@ApiResponse(responseCode="404", description="recipe not found")
-//	})
+	@ApiResponses(value = {
+			@ApiResponse(responseCode="200", description="get Recipe by ID"),
+			@ApiResponse(responseCode="404", description="recipe not found")
+	})
 	@GetMapping(value="{id}", produces=MediaType.APPLICATION_JSON_VALUE)
 	public Recipe getBy(@PathVariable Integer id) {
 		if (id == null)

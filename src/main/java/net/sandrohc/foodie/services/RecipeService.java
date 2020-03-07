@@ -5,7 +5,6 @@
 package net.sandrohc.foodie.services;
 
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import net.sandrohc.foodie.model.Recipe;
 import net.sandrohc.foodie.repositories.RecipeRepository;
