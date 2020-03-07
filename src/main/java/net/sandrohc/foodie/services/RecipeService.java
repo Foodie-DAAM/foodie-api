@@ -11,6 +11,7 @@ import net.sandrohc.foodie.model.Recipe;
 import net.sandrohc.foodie.repositories.RecipeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
@@ -35,9 +36,9 @@ public class RecipeService {
 		return repository.findById(id);
 	}
 
-	public Stream<Recipe> getAllByPage(PageRequest of) {
+	public Page<Recipe> getAllByPage(PageRequest of) {
 		LOG.info("Find for: " + of);
-		return repository.findAll(of).get();
+		return repository.findAll(of);
 	}
 
 }
