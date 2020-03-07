@@ -16,6 +16,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @SuppressWarnings("unused")
 @Entity
 public class Recipe implements Serializable {
@@ -44,6 +46,7 @@ public class Recipe implements Serializable {
 	@Column
 	private String picture;
 
+	@JsonManagedReference
 	@OneToMany(
 			mappedBy="recipe",
 			cascade=CascadeType.ALL,
@@ -51,6 +54,7 @@ public class Recipe implements Serializable {
 	)
 	private List<RecipeIngredient> ingredients = new ArrayList<>();
 
+	@JsonManagedReference
 	@OneToMany(
 			mappedBy="recipe",
 			cascade=CascadeType.ALL,
@@ -58,6 +62,7 @@ public class Recipe implements Serializable {
 	)
 	private List<RecipeStep> steps = new ArrayList<>();
 
+	@JsonManagedReference
 	@OneToMany(
 			mappedBy="recipe",
 			cascade=CascadeType.ALL,
@@ -65,6 +70,7 @@ public class Recipe implements Serializable {
 	)
 	private List<RecipeNutrition> nutritionFacts = new ArrayList<>();
 
+	@JsonManagedReference
 	@OneToMany(
 			mappedBy="recipe",
 			cascade=CascadeType.ALL,
@@ -72,6 +78,7 @@ public class Recipe implements Serializable {
 	)
 	private List<RecipeReview> reviews = new ArrayList<>();
 
+	@JsonManagedReference
 	@OneToMany(
 			mappedBy="recipe",
 			cascade=CascadeType.ALL,

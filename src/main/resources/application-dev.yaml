@@ -22,7 +22,7 @@ spring:
         format_sql: false
         generate_statistics: false
     hibernate:
-      ddl-auto: create # none/create/update
+      ddl-auto: update # none/create/update
   flyway:
     sql-migration-prefix: ''
     sql-migration-separator: '-'

@@ -2,20 +2,14 @@ package net.sandrohc.foodie.model;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
 @Embeddable
 public class Unit implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Enumerated(EnumType.STRING)
 	private UnitType type;
-
-	@Column
 	private float amount;
 
 	public Unit() {

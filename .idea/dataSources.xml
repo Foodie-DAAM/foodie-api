@@ -13,5 +13,11 @@
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
       <jdbc-url>jdbc:postgresql://localhost:10001/foodie</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="foodie@vps" single-connection="true" uuid="2bca6603-d710-4101-a8b5-f80b14e2fc68">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://sandrohc.net:10001/foodie</jdbc-url>
+    </data-source>
   </component>
 </project>

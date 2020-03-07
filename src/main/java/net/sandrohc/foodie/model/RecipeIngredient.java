@@ -4,20 +4,26 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class RecipeIngredient implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@JsonIgnore
 	@EmbeddedId
 	public RecipeSubId id = new RecipeSubId();
 
+	@JsonBackReference
 	@MapsId("recipeId")
 	@ManyToOne
 	public Recipe recipe;
@@ -25,12 +31,16 @@ public class RecipeIngredient implements Serializable {
 	@Column(nullable=false)
 	private String name;
 
-	@Embedded
-	private Unit unit;
+	@Enumerated(EnumType.STRING)
+	private UnitType type;
+
+	@Column
+	private float amount;
 
 	@Column
 	private String extra;
 
+	@JsonIgnore
 	@Column
 	private String original;
 
@@ -38,12 +48,13 @@ public class RecipeIngredient implements Serializable {
 	public RecipeIngredient() {
 	}
 
-	public RecipeIngredient(Recipe recipe, int id, String original, String name, Unit unit, String extra) {
+	public RecipeIngredient(Recipe recipe, int id, String original, String name, UnitType type, float amount, String extra) {
 		this.id.setId(id);
 		this.recipe = recipe;
 		this.original = original;
 		this.name = name;
-		this.unit = unit;
+		this.type = type;
+		this.amount = amount;
 		this.extra = extra;
 	}
 
@@ -74,12 +85,20 @@ public class RecipeIngredient implements Serializable {
 		this.name = name;
 	}
 
-	public Unit getUnit() {
-		return unit;
+	public UnitType getType() {
+		return type;
 	}
 
-	public void setUnit(Unit unit) {
-		this.unit = unit;
+	public void setType(UnitType type) {
+		this.type = type;
+	}
+
+	public float getAmount() {
+		return amount;
+	}
+
+	public void setAmount(float amount) {
+		this.amount = amount;
 	}
 
 	public String getExtra() {

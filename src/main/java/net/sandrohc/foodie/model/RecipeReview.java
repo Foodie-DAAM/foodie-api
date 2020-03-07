@@ -9,14 +9,19 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class RecipeReview implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@JsonIgnore
 	@EmbeddedId
 	public RecipeUserId id = new RecipeUserId();
 
+	@JsonBackReference
 	@MapsId("recipeId")
 	@ManyToOne
 	public Recipe recipe;

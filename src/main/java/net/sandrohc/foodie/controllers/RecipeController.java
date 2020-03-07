@@ -15,9 +15,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -81,7 +79,7 @@ public class RecipeController {
 //			@ApiResponse(responseCode="404", description="recipe not found")
 //	})
 	@GetMapping(value="{id}", produces=MediaType.APPLICATION_JSON_VALUE)
-	public Recipe getBy(@PathVariable Long id) {
+	public Recipe getBy(@PathVariable Integer id) {
 		if (id == null)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID not filled");
 

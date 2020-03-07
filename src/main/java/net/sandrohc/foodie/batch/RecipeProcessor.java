@@ -176,7 +176,7 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 		String name = matcher.group("name");
 		String extra = matcher.group("extra");
 
-		return new RecipeIngredient(recipe, id, str, name, unit, extra);
+		return new RecipeIngredient(recipe, id, str, name, unit.getType(), unit.getAmount(), extra);
 	}
 
 	private Double processRatio(String str) {

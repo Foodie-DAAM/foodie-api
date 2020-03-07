@@ -10,6 +10,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RecipeRepository extends JpaRepositoryImplementation<Recipe, Long>, PagingAndSortingRepository<Recipe, Long> {
+public interface RecipeRepository extends JpaRepositoryImplementation<Recipe, Integer>, PagingAndSortingRepository<Recipe, Integer> {
 
 }

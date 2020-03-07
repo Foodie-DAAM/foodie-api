@@ -30,7 +30,7 @@ public class RecipeService {
 	 * @param id The id to look the recipe up for.
 	 * @return the requested {@link Recipe}.
 	 */
-	public Optional<Recipe> getBy(Long id) {
+	public Optional<Recipe> getBy(Integer id) {
 		LOG.info("Finding entity: {}", id);
 		return repository.findById(id);
 	}

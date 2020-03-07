@@ -9,6 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 public class RecipeDifficulty implements Serializable {
 
@@ -17,6 +19,7 @@ public class RecipeDifficulty implements Serializable {
 	@EmbeddedId
 	public RecipeUserId id = new RecipeUserId();
 
+	@JsonBackReference
 	@MapsId("recipeId")
 	@ManyToOne
 	public Recipe recipe;

@@ -10,14 +10,19 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.PrePersist;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class RecipeNutrition implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@JsonIgnore
 	@EmbeddedId
 	public RecipeNutritionId id = new RecipeNutritionId();
 
+	@JsonBackReference
 	@MapsId("recipeId")
 	@ManyToOne
 	public Recipe recipe;
@@ -25,6 +30,7 @@ public class RecipeNutrition implements Serializable {
 	@Column(nullable=false)
 	private float amount;
 
+	@JsonIgnore
 	@Column
 	private String original;
 
