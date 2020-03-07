@@ -2,7 +2,7 @@
  * Copyright (c) 2020. Authored by SandroHc
  */
 
-package net.sandrohc.foodie.batch.model;
+package net.sandrohc.foodie.batch;
 
 import java.util.Collection;
 
@@ -107,6 +107,6 @@ public class RecipeJson {
 
 	@Override
 	public String toString() {
-		return "Recipe[title='" + title + "']";
+		return "RecipeJson[url='" + url + "', title='" + title + "']";
 	}
 }

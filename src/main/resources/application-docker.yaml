@@ -1,6 +1,5 @@
 spring:
-  profiles:
-    active: docker
+  profiles: docker
   datasource:
     url: jdbc:postgresql://db:5432/foodie
     username: foodie

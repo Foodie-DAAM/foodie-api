@@ -4,7 +4,7 @@
 
 package net.sandrohc.foodie.controllers;
 
-import java.util.Collections;
+import java.util.Date;
 import java.util.stream.Stream;
 
 import net.sandrohc.foodie.model.Recipe;
@@ -12,11 +12,12 @@ import net.sandrohc.foodie.services.RecipeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.boot.autoconfigure.batch.JobExecutionEvent;
-import org.springframework.boot.autoconfigure.batch.JobLauncherApplicationRunner;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -38,32 +39,26 @@ public class RecipeController {
 	private final RecipeService recipeService;
 
 	private final JobLauncher jobLauncher;
-	private final JobExplorer jobExplorer;
-	private final JobRepository jobRepository;
 	private final Job importRecipeJob;
 
 	public RecipeController(final RecipeService recipeService,
 							final JobLauncher jobLauncher,
-							final JobExplorer jobExplorer,
-							final JobRepository jobRepository,
 							final Job importRecipeJob) {
 
 		this.recipeService = recipeService;
 		this.jobLauncher = jobLauncher;
-		this.jobExplorer = jobExplorer;
-		this.jobRepository = jobRepository;
 		this.importRecipeJob = importRecipeJob;
 	}
 
 	@GetMapping("refresh")
 	public String executeJob() {
 		try {
-			JobLauncherApplicationRunner runner = new JobLauncherApplicationRunner(jobLauncher, jobExplorer, jobRepository);
-			runner.setJobs(Collections.singleton(importRecipeJob));
-//			runner.setJobNames("load recipes");
-			runner.setApplicationEventPublisher(event -> LOG.debug("" + ((JobExecutionEvent) event).getJobExecution()));
-			runner.run();
-			return "done";
+			JobParameters params = new JobParametersBuilder()
+					.addDate("started", new Date())
+					.toJobParameters();
+
+			JobExecution execution = jobLauncher.run(importRecipeJob, params);
+			return execution.toString();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return e.toString();

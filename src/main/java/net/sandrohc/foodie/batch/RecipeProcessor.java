@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import net.sandrohc.foodie.model.Recipe;
-import net.sandrohc.foodie.batch.model.RecipeJson;
 import net.sandrohc.foodie.model.RecipeIngredient;
 import net.sandrohc.foodie.model.RecipeStep;
 import net.sandrohc.foodie.model.Unit;

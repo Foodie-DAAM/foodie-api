@@ -6,10 +6,9 @@ package net.sandrohc.foodie.batch;
 
 import java.io.IOException;
 
-import javax.sql.DataSource;
+import javax.persistence.EntityManagerFactory;
 
 import net.sandrohc.foodie.model.Recipe;
-import net.sandrohc.foodie.batch.model.RecipeJson;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -18,9 +17,8 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.partition.support.MultiResourcePartitioner;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
-import org.springframework.batch.item.database.JdbcBatchItemWriter;
-import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
+import org.springframework.batch.item.database.JpaItemWriter;
+import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
@@ -36,14 +34,20 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @Configuration
-public class JobRecipe {
+public class RecipeJob {
 
-	public final JobBuilderFactory jobBuilderFactory;
-	public final StepBuilderFactory stepBuilderFactory;
+	private final JobBuilderFactory jobBuilderFactory;
+	private final StepBuilderFactory stepBuilderFactory;
 
-	public JobRecipe(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory) {
+	private final EntityManagerFactory emf;
+
+	public RecipeJob(JobBuilderFactory jobBuilderFactory,
+					 StepBuilderFactory stepBuilderFactory,
+					 EntityManagerFactory emf) {
+
 		this.jobBuilderFactory = jobBuilderFactory;
 		this.stepBuilderFactory = stepBuilderFactory;
+		this.emf = emf;
 	}
 
 	@Bean
@@ -60,7 +64,7 @@ public class JobRecipe {
 	public Step stepClearDb(JdbcTemplate jdbcTemplate) {
 		return stepBuilderFactory.get("clear db")
 				.tasklet((contribution, chunkContext) -> {
-					jdbcTemplate.execute("TRUNCATE TABLE recipe");
+					jdbcTemplate.execute("TRUNCATE TABLE recipe CASCADE");
 					return RepeatStatus.FINISHED;
 				})
 				.build();
@@ -76,12 +80,12 @@ public class JobRecipe {
 	}
 
 	@Bean
-	public Step stepLoadData(ItemReader<RecipeJson> reader, JdbcBatchItemWriter<Recipe> writer) {
+	public Step stepLoadData(ItemReader<RecipeJson> reader) {
 		return stepBuilderFactory.get("load data")
 				.<RecipeJson, Recipe>chunk(500)
 				.reader(reader)
 				.processor(processor())
-				.writer(writer)
+				.writer(writer())
 				.faultTolerant()
 				.skipLimit(Integer.MAX_VALUE)
 				.skip(MissingUrlException.class)
@@ -126,13 +130,9 @@ public class JobRecipe {
 	}
 
 	@Bean
-	public JdbcBatchItemWriter<Recipe> writer(DataSource dataSource) {
-		return new JdbcBatchItemWriterBuilder<Recipe>()
-				.itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
-				.sql("INSERT INTO recipe (id, url, title, description, duration, servings, picture, ingredients, steps, nutrition_facts)" +
-					 " VALUES (:id, :url, :title, :description, :duration, :servings, :picture, :ingredients, :steps, :nutritionFacts)"
-				)
-				.dataSource(dataSource)
+	public JpaItemWriter<Recipe> writer() {
+		return new JpaItemWriterBuilder<Recipe>()
+				.entityManagerFactory(emf)
 				.build();
 	}
 
