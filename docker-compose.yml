@@ -5,7 +5,7 @@ services:
     depends_on:
       - db
     image: foodie
-    build: api/
+    build: .
     restart: "no"
     ports:
       - "10000:8080"
