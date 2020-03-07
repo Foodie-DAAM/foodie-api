@@ -46,7 +46,6 @@ public class JobRecipe {
 		this.stepBuilderFactory = stepBuilderFactory;
 	}
 
-//	@Bean({"recipeJob"})
 	@Bean
 	public Job importRecipeJob(Step stepClearDb, Step stepLoadManager) {
 		return jobBuilderFactory.get("load recipes")

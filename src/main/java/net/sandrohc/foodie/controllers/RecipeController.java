@@ -4,17 +4,19 @@
 
 package net.sandrohc.foodie.controllers;
 
+import java.util.Collections;
 import java.util.stream.Stream;
 
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import net.sandrohc.foodie.model.Recipe;
 import net.sandrohc.foodie.services.RecipeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.boot.autoconfigure.batch.JobExecutionEvent;
+import org.springframework.boot.autoconfigure.batch.JobLauncherApplicationRunner;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -36,27 +38,41 @@ public class RecipeController {
 	private final RecipeService recipeService;
 
 	private final JobLauncher jobLauncher;
+	private final JobExplorer jobExplorer;
+	private final JobRepository jobRepository;
 	private final Job importRecipeJob;
 
-	public RecipeController(final RecipeService recipeService, final JobLauncher jobLauncher, final Job importRecipeJob) {
+	public RecipeController(final RecipeService recipeService,
+							final JobLauncher jobLauncher,
+							final JobExplorer jobExplorer,
+							final JobRepository jobRepository,
+							final Job importRecipeJob) {
+
 		this.recipeService = recipeService;
 		this.jobLauncher = jobLauncher;
+		this.jobExplorer = jobExplorer;
+		this.jobRepository = jobRepository;
 		this.importRecipeJob = importRecipeJob;
 	}
 
 	@GetMapping("refresh")
 	public String executeJob() {
 		try {
-			return jobLauncher.run(importRecipeJob, new JobParameters()).toString();
+			JobLauncherApplicationRunner runner = new JobLauncherApplicationRunner(jobLauncher, jobExplorer, jobRepository);
+			runner.setJobs(Collections.singleton(importRecipeJob));
+//			runner.setJobNames("load recipes");
+			runner.setApplicationEventPublisher(event -> LOG.debug("" + ((JobExecutionEvent) event).getJobExecution()));
+			runner.run();
+			return "done";
 		} catch (Exception e) {
 			e.printStackTrace();
 			return e.toString();
 		}
 	}
 
-	@ApiResponses(value = {
-			@ApiResponse(responseCode="200", description="get All Recipes")
-	})
+//	@ApiResponses(value = {
+//			@ApiResponse(responseCode="200", description="get All Recipes")
+//	})
 	@GetMapping(produces=MediaType.APPLICATION_JSON_VALUE)
 	public Stream<Recipe> getAllByPage(
 			@RequestParam("page") int pageIndex,
@@ -65,10 +81,10 @@ public class RecipeController {
 		return recipeService.getAllByPage(PageRequest.of(pageIndex, pageSize, Sort.by("title")));
 	}
 
-	@ApiResponses(value = {
-			@ApiResponse(responseCode="200", description="get Recipe by ID"),
-			@ApiResponse(responseCode="404", description="recipe not found")
-	})
+//	@ApiResponses(value = {
+//			@ApiResponse(responseCode="200", description="get Recipe by ID"),
+//			@ApiResponse(responseCode="404", description="recipe not found")
+//	})
 	@GetMapping(value="{id}", produces=MediaType.APPLICATION_JSON_VALUE)
 	public Recipe getBy(@PathVariable Long id) {
 		if (id == null)
