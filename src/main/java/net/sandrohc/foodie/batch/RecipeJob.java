@@ -26,6 +26,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -82,13 +83,14 @@ public class RecipeJob {
 	@Bean
 	public Step stepLoadData(ItemReader<RecipeJson> reader) {
 		return stepBuilderFactory.get("load data")
-				.<RecipeJson, Recipe>chunk(500)
+				.<RecipeJson, Recipe>chunk(100)
 				.reader(reader)
 				.processor(processor())
 				.writer(writer())
 				.faultTolerant()
 				.skipLimit(Integer.MAX_VALUE)
 				.skip(MissingUrlException.class)
+				.skip(MissingIdException.class)
 				.build();
 	}
 
@@ -110,17 +112,21 @@ public class RecipeJob {
 	@Bean
 	@StepScope
 	public JsonItemReader<RecipeJson> reader(@Value("#{stepExecutionContext[fileName]}") String filename) {
-		int index = filename.indexOf(":");
-		if (index != -1) {
-			filename = filename.substring(index + 2);
+		final Resource resource;
+
+		if (filename.startsWith("jar:")) {
+			resource = new ClassPathResource(filename);
+		} else if (filename.startsWith("file:/")) {
+			filename = filename.substring("file:/".length());
+			resource = new PathResource(filename);
+		} else {
+			throw new IllegalArgumentException("Invalid filename: " + filename);
 		}
 
 		return new JsonItemReaderBuilder<RecipeJson>()
 				.jsonObjectReader(new JacksonJsonObjectReader<>(RecipeJson.class))
 				.name("recipe json reader")
-				.resource(new PathResource(filename))
-//				.resource(new ClassPathResource(filename))
-//				.resource(new FileSystemResource(filename))
+				.resource(resource)
 				.build();
 	}
 

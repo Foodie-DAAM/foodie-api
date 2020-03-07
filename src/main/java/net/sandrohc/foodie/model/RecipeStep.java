@@ -12,14 +12,16 @@ import javax.persistence.MapsId;
 @Entity
 public class RecipeStep implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	@EmbeddedId
-	public RecipeStepId id = new RecipeStepId();
+	public RecipeSubId id = new RecipeSubId();
 
 	@MapsId("recipeId")
 	@ManyToOne
 	public Recipe recipe;
 
-	@Column(nullable=false)
+	@Column(nullable=false, length=1000)
 	private String description;
 
 	@Column
@@ -35,7 +37,8 @@ public class RecipeStep implements Serializable {
 	public RecipeStep() {
 	}
 
-	public RecipeStep(Recipe recipe, String description) {
+	public RecipeStep(Recipe recipe, int id, String description) {
+		this.getId().setId(id);
 		this.recipe = recipe;
 		this.description = description;
 	}
@@ -43,11 +46,11 @@ public class RecipeStep implements Serializable {
 
 	// <editor-fold defaultstate="collapsed" desc="Getters & Setters">
 
-	public RecipeStepId getId() {
+	public RecipeSubId getId() {
 		return id;
 	}
 
-	public void setId(RecipeStepId id) {
+	public void setId(RecipeSubId id) {
 		this.id = id;
 	}
 

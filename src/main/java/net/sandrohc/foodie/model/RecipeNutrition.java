@@ -4,57 +4,58 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
+import javax.persistence.PrePersist;
 
 @Entity
-public class RecipeIngredient implements Serializable {
+public class RecipeNutrition implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@EmbeddedId
-	public RecipeSubId id = new RecipeSubId();
+	public RecipeNutritionId id = new RecipeNutritionId();
 
 	@MapsId("recipeId")
 	@ManyToOne
 	public Recipe recipe;
 
 	@Column(nullable=false)
-	private String name;
-
-	@Embedded
-	private Unit unit;
-
-	@Column
-	private String extra;
+	private float amount;
 
 	@Column
 	private String original;
 
 
-	public RecipeIngredient() {
+	public RecipeNutrition() {
 	}
 
-	public RecipeIngredient(Recipe recipe, int id, String original, String name, Unit unit, String extra) {
-		this.id.setId(id);
+	public RecipeNutrition(Recipe recipe, String original, NutritionType type, float amount) {
+		this.id.setType(type.name());
 		this.recipe = recipe;
 		this.original = original;
-		this.name = name;
-		this.unit = unit;
-		this.extra = extra;
+		this.amount = amount;
 	}
 
+	@PrePersist
+	private void prePersist(){
+		if (getId() == null){
+			RecipeNutritionId id = new RecipeNutritionId();
+			id.setRecipeId(getRecipe().getId());
+			id.setType(getType().toString());
+			this.setId(id);
+		}
+	}
 
 	// <editor-fold defaultstate="collapsed" desc="Getters & Setters">
 
-	public RecipeSubId getId() {
+	public RecipeNutritionId getId() {
 		return id;
 	}
 
-	public void setId(RecipeSubId id) {
+	public void setId(RecipeNutritionId id) {
 		this.id = id;
 	}
 
@@ -66,28 +67,20 @@ public class RecipeIngredient implements Serializable {
 		this.recipe = recipe;
 	}
 
-	public String getName() {
-		return name;
+	public NutritionType getType() {
+		return NutritionType.valueOf(id.getType());
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setType(NutritionType type) {
+		this.id.setType(type.name());
 	}
 
-	public Unit getUnit() {
-		return unit;
+	public float getAmount() {
+		return amount;
 	}
 
-	public void setUnit(Unit unit) {
-		this.unit = unit;
-	}
-
-	public String getExtra() {
-		return extra;
-	}
-
-	public void setExtra(String extra) {
-		this.extra = extra;
+	public void setAmount(float amount) {
+		this.amount = amount;
 	}
 
 	public String getOriginal() {
@@ -105,7 +98,7 @@ public class RecipeIngredient implements Serializable {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		RecipeIngredient that = (RecipeIngredient) o;
+		RecipeNutrition that = (RecipeNutrition) o;
 
 		return Objects.equals(id, that.id);
 	}
@@ -120,7 +113,8 @@ public class RecipeIngredient implements Serializable {
 		return "RecipeIngredient[" +
 			   "id=" + id +
 			   ", recipe=" + recipe +
-			   ", value='" + original + '\'' +
+			   ", type=" + getType() +
+			   ", amount=" + amount +
 			   ']';
 	}
 }

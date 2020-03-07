@@ -8,6 +8,8 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class RecipeUserId implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	private Long recipeId;
 	private Long userId;
 

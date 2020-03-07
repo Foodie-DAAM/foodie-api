@@ -15,13 +15,14 @@ spring:
     username: foodie
     password: foodie
   jpa:
-#    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-#        format_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+        generate_statistics: false
     hibernate:
-      ddl-auto: update # none/create
+      ddl-auto: create # none/create/update
   flyway:
     sql-migration-prefix: ''
     sql-migration-separator: '-'

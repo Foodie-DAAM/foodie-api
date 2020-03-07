@@ -7,7 +7,7 @@
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
       <jdbc-url>jdbc:postgresql://localhost:10001/postgres</jdbc-url>
     </data-source>
-    <data-source source="LOCAL" name="foodie@local" uuid="c01a92e2-c98c-42d9-af13-48e739d245a7">
+    <data-source source="LOCAL" name="foodie@local" single-connection="true" uuid="c01a92e2-c98c-42d9-af13-48e739d245a7">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>

@@ -12,6 +12,8 @@ import javax.persistence.MapsId;
 @Entity
 public class RecipeReview implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	@EmbeddedId
 	public RecipeUserId id = new RecipeUserId();
 

@@ -2,37 +2,31 @@ package net.sandrohc.foodie.model;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
 @Embeddable
-public class Unit implements Serializable {
+public class Nutrition implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Enumerated(EnumType.STRING)
-	private UnitType type;
-
-	@Column
+	private NutritionType type;
 	private float amount;
 
-	public Unit() {
+	public Nutrition() {
 	}
 
-	public Unit(UnitType type, float amount) {
+	public Nutrition(NutritionType type, float amount) {
 		this.type = type;
 		this.amount = amount;
 	}
 
 	// <editor-fold defaultstate="collapsed" desc="Getters & Setters">
 
-	public UnitType getType() {
+	public NutritionType getType() {
 		return type;
 	}
 
-	public void setType(UnitType type) {
+	public void setType(NutritionType type) {
 		this.type = type;
 	}
 
@@ -51,7 +45,7 @@ public class Unit implements Serializable {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		Unit unit = (Unit) o;
+		Nutrition unit = (Nutrition) o;
 
 		return type == unit.type
 			&& Float.compare(unit.amount, amount) == 0;

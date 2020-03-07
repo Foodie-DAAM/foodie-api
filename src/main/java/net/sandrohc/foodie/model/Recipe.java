@@ -4,9 +4,9 @@
 
 package net.sandrohc.foodie.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -18,11 +18,13 @@ import javax.persistence.OneToMany;
 
 @SuppressWarnings("unused")
 @Entity
-public class Recipe {
+public class Recipe implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	private Long id;
+	@GeneratedValue(strategy=GenerationType.SEQUENCE)
+	private int id;
 
 	@Column(nullable=false)
 	private String url;
@@ -30,7 +32,7 @@ public class Recipe {
 	@Column(nullable=false)
 	private String title;
 
-	@Column
+	@Column(length=1000)
 	private String description;
 
 	@Column
@@ -41,9 +43,6 @@ public class Recipe {
 
 	@Column
 	private String picture;
-
-	@Column
-	private String nutritionFacts;
 
 	@OneToMany(
 			mappedBy="recipe",
@@ -64,6 +63,13 @@ public class Recipe {
 			cascade=CascadeType.ALL,
 			orphanRemoval=true
 	)
+	private List<RecipeNutrition> nutritionFacts = new ArrayList<>();
+
+	@OneToMany(
+			mappedBy="recipe",
+			cascade=CascadeType.ALL,
+			orphanRemoval=true
+	)
 	private List<RecipeReview> reviews = new ArrayList<>();
 
 	@OneToMany(
@@ -78,11 +84,12 @@ public class Recipe {
 	}
 
 	// <editor-fold defaultstate="collapsed" desc="Getters & Setters">
-	public long getId() {
+
+	public int getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
@@ -134,14 +141,6 @@ public class Recipe {
 		this.picture = picture;
 	}
 
-	public String getNutritionFacts() {
-		return nutritionFacts;
-	}
-
-	public void setNutritionFacts(String nutritionFacts) {
-		this.nutritionFacts = nutritionFacts;
-	}
-
 	public List<RecipeIngredient> getIngredients() {
 		return ingredients;
 	}
@@ -156,6 +155,14 @@ public class Recipe {
 
 	public void setSteps(List<RecipeStep> steps) {
 		this.steps = steps;
+	}
+
+	public List<RecipeNutrition> getNutritionFacts() {
+		return nutritionFacts;
+	}
+
+	public void setNutritionFacts(List<RecipeNutrition> nutrition) {
+		this.nutritionFacts = nutrition;
 	}
 
 	public List<RecipeReview> getReviews() {
@@ -173,6 +180,7 @@ public class Recipe {
 	public void setDifficulties(List<RecipeDifficulty> difficulties) {
 		this.difficulties = difficulties;
 	}
+
 	// </editor-fold>
 
 	@Override
@@ -182,12 +190,12 @@ public class Recipe {
 
 		Recipe recipe = (Recipe) o;
 
-		return Objects.equals(id, recipe.id);
+		return id == recipe.id;
 	}
 
 	@Override
 	public int hashCode() {
-		return (int) (id ^ (id >>> 32));
+		return id;
 	}
 
 	@Override
