@@ -1,71 +1,26 @@
+/*
+ * Copyright (c) 2020. Authored by SandroHc
+ */
+
 package net.sandrohc.foodie.model;
 
-import java.io.Serializable;
-import java.util.Objects;
+public class RecipeStep {
 
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-@Entity
-public class RecipeStep implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-
-	@JsonIgnore
-	@EmbeddedId
-	public RecipeSubId id = new RecipeSubId();
-
-	@JsonBackReference
-	@MapsId("recipeId")
-	@ManyToOne
-	public Recipe recipe;
-
-	@Column(nullable=false, length=1000)
 	private String description;
-
-	@Column
 	private String url;
-
-	@Column
 	private String picture;
-
-	@Column
 	private Integer timer;
 
+	public RecipeStep() {/* used by the Jackson serializer */}
 
-	public RecipeStep() {
-	}
-
-	public RecipeStep(Recipe recipe, int id, String description) {
-		this.getId().setId(id);
-		this.recipe = recipe;
+	public RecipeStep(String description, String url, String picture, Integer timer) {
 		this.description = description;
+		this.url = url;
+		this.picture = picture;
+		this.timer = timer;
 	}
-
 
 	// <editor-fold defaultstate="collapsed" desc="Getters & Setters">
-
-	public RecipeSubId getId() {
-		return id;
-	}
-
-	public void setId(RecipeSubId id) {
-		this.id = id;
-	}
-
-	public Recipe getRecipe() {
-		return recipe;
-	}
-
-	public void setRecipe(Recipe recipe) {
-		this.recipe = recipe;
-	}
 
 	public String getDescription() {
 		return description;
@@ -101,6 +56,7 @@ public class RecipeStep implements Serializable {
 
 	// </editor-fold>
 
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -108,19 +64,18 @@ public class RecipeStep implements Serializable {
 
 		RecipeStep that = (RecipeStep) o;
 
-		return Objects.equals(id, that.id);
+		return description.equals(that.description);
 	}
 
 	@Override
 	public int hashCode() {
-		return id != null ? id.hashCode() : 0;
+		return description.hashCode();
 	}
 
 	@Override
 	public String toString() {
 		return "RecipeStep[" +
-			   "id=" + id +
-			   ", description='" + description + '\'' +
+			   "description='" + description + '\'' +
 			   ", url='" + url + '\'' +
 			   ", picture='" + picture + '\'' +
 			   ", timer=" + timer +

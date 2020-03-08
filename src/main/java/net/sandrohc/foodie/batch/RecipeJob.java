@@ -6,8 +6,6 @@ package net.sandrohc.foodie.batch;
 
 import java.io.IOException;
 
-import javax.persistence.EntityManagerFactory;
-
 import net.sandrohc.foodie.model.Recipe;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -17,12 +15,10 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.partition.support.MultiResourcePartitioner;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.database.JpaItemWriter;
-import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +28,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 
 @Configuration
 public class RecipeJob {
@@ -40,34 +36,23 @@ public class RecipeJob {
 	private final JobBuilderFactory jobBuilderFactory;
 	private final StepBuilderFactory stepBuilderFactory;
 
-	private final EntityManagerFactory emf;
+	private final ReactiveMongoOperations mongoOperations;
 
 	public RecipeJob(JobBuilderFactory jobBuilderFactory,
 					 StepBuilderFactory stepBuilderFactory,
-					 EntityManagerFactory emf) {
+					 ReactiveMongoOperations mongoOperations) {
 
 		this.jobBuilderFactory = jobBuilderFactory;
 		this.stepBuilderFactory = stepBuilderFactory;
-		this.emf = emf;
+		this.mongoOperations = mongoOperations;
 	}
 
 	@Bean
-	public Job importRecipeJob(Step stepClearDb, Step stepLoadManager) {
+	public Job importRecipeJob(Step stepLoadManager) {
 		return jobBuilderFactory.get("load recipes")
 				.incrementer(new RunIdIncrementer())
-				.flow(stepClearDb)
-				.next(stepLoadManager)
+				.flow(stepLoadManager)
 				.end()
-				.build();
-	}
-
-	@Bean
-	public Step stepClearDb(JdbcTemplate jdbcTemplate) {
-		return stepBuilderFactory.get("clear db")
-				.tasklet((contribution, chunkContext) -> {
-					jdbcTemplate.execute("TRUNCATE TABLE recipe CASCADE");
-					return RepeatStatus.FINISHED;
-				})
 				.build();
 	}
 
@@ -83,9 +68,9 @@ public class RecipeJob {
 	@Bean
 	public Step stepLoadData(ItemReader<RecipeJson> reader) {
 		return stepBuilderFactory.get("load data")
-				.<RecipeJson, Recipe>chunk(100)
+				.<RecipeJson, Recipe>chunk(1000)
 				.reader(reader)
-				.processor(processor())
+				.processor(new RecipeProcessor())
 				.writer(writer())
 				.faultTolerant()
 				.skipLimit(Integer.MAX_VALUE)
@@ -131,15 +116,8 @@ public class RecipeJob {
 	}
 
 	@Bean
-	public RecipeProcessor processor() {
-		return new RecipeProcessor();
-	}
-
-	@Bean
-	public JpaItemWriter<Recipe> writer() {
-		return new JpaItemWriterBuilder<Recipe>()
-				.entityManagerFactory(emf)
-				.build();
+	public ItemWriter<Recipe> writer() {
+		return items -> mongoOperations.insertAll(items).collectList().block();
 	}
 
 }

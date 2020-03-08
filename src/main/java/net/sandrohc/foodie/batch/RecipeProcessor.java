@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -19,14 +18,15 @@ import java.util.stream.Collectors;
 import net.sandrohc.foodie.model.Nutrition;
 import net.sandrohc.foodie.model.NutritionConverter;
 import net.sandrohc.foodie.model.Recipe;
+import net.sandrohc.foodie.model.Unit;
+import net.sandrohc.foodie.model.UnitConverter;
 import net.sandrohc.foodie.model.RecipeIngredient;
 import net.sandrohc.foodie.model.RecipeNutrition;
 import net.sandrohc.foodie.model.RecipeStep;
-import net.sandrohc.foodie.model.Unit;
-import net.sandrohc.foodie.model.UnitConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.util.StringUtils;
 
 public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 
@@ -94,30 +94,32 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 	}
 
 	private void processSteps(RecipeJson from, Recipe to) {
-		AtomicInteger id = new AtomicInteger(0);
-
 		to.setSteps(from.getInstructions().stream()
 				.map(RecipeProcessor::clean)
 				.map(s -> s == null ? null : PATTERN_STEP.matcher(s).replaceFirst("").trim())
-				.filter(s -> s != null && !s.isEmpty())
-				.map(s -> new RecipeStep(to, id.getAndIncrement(), s))
-				.collect(Collectors.toList()));
-	}
-
-	private void processIngredients(RecipeJson from, Recipe to) {
-		AtomicInteger id = new AtomicInteger(0);
-
-		to.setIngredients(from.getIngredients().stream()
-				.map(RecipeProcessor::clean)
-				.map(s -> processIngredient(to, s, id.getAndIncrement()))
+				.map(this::processStep)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList()));
 	}
 
-	private RecipeIngredient processIngredient(Recipe recipe, String str, int id) {
-		if (str == null) {
+	private RecipeStep processStep(String description) {
+		if (StringUtils.isEmpty(description))
 			return null;
-		}
+
+		return new RecipeStep(description, null, null, null);
+	}
+
+	private void processIngredients(RecipeJson from, Recipe to) {
+		to.setIngredients(from.getIngredients().stream()
+				.map(RecipeProcessor::clean)
+				.map(this::processIngredient)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList()));
+	}
+
+	private RecipeIngredient processIngredient(String str) {
+		if (str == null)
+			return null;
 
 		Map<String, String> replacements = new HashMap<>();
 		// Registered trademark
@@ -176,7 +178,7 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 		String name = matcher.group("name");
 		String extra = matcher.group("extra");
 
-		return new RecipeIngredient(recipe, id, str, name, unit.getType(), unit.getAmount(), extra);
+		return new RecipeIngredient(name, unit.getType(), unit.getAmount(), extra, str);
 	}
 
 	private Double processRatio(String str) {
@@ -209,12 +211,12 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 
 		to.setNutritionFacts(Arrays.stream(nutrition.split("\n"))
 				.map(RecipeProcessor::clean)
-				.map(s -> processNutritionFact(to, s))
+				.map(this::processNutritionFact)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList()));
 	}
 
-	private RecipeNutrition processNutritionFact(Recipe recipe, String str) {
+	private RecipeNutrition processNutritionFact(String str) {
 		if (str == null)
 			return null;
 
@@ -253,7 +255,7 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 			return null;
 		}
 
-		return new RecipeNutrition(recipe, str, nutrition.getType(), nutrition.getAmount());
+		return new RecipeNutrition(nutrition.getType(), nutrition.getAmount(), str);
 	}
 
 	private static String clean(String str) {

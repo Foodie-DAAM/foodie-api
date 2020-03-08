@@ -1,84 +1,35 @@
+/*
+ * Copyright (c) 2020. Authored by SandroHc
+ */
+
 package net.sandrohc.foodie.model;
 
-import java.io.Serializable;
-import java.util.Objects;
-
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
-import javax.persistence.PrePersist;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Entity
-public class RecipeNutrition implements Serializable {
+public class RecipeNutrition {
 
-	private static final long serialVersionUID = 1L;
-
-	@JsonIgnore
-	@EmbeddedId
-	public RecipeNutritionId id = new RecipeNutritionId();
-
-	@JsonBackReference
-	@MapsId("recipeId")
-	@ManyToOne
-	public Recipe recipe;
-
-	@Column(nullable=false)
+	private NutritionType type;
 	private float amount;
 
 	@JsonIgnore
-	@Column
 	private String original;
 
+	public RecipeNutrition() {/* used by the Jackson serializer */}
 
-	public RecipeNutrition() {
-	}
-
-	public RecipeNutrition(Recipe recipe, String original, NutritionType type, float amount) {
-		this.id.setType(type.name());
-		this.recipe = recipe;
-		this.original = original;
+	public RecipeNutrition(NutritionType type, float amount, String original) {
+		this.type = type;
 		this.amount = amount;
-	}
-
-	@PrePersist
-	private void prePersist(){
-		if (getId() == null){
-			RecipeNutritionId id = new RecipeNutritionId();
-			id.setRecipeId(getRecipe().getId());
-			id.setType(getType().toString());
-			this.setId(id);
-		}
+		this.original = original;
 	}
 
 	// <editor-fold defaultstate="collapsed" desc="Getters & Setters">
 
-	public RecipeNutritionId getId() {
-		return id;
-	}
-
-	public void setId(RecipeNutritionId id) {
-		this.id = id;
-	}
-
-	public Recipe getRecipe() {
-		return recipe;
-	}
-
-	public void setRecipe(Recipe recipe) {
-		this.recipe = recipe;
-	}
-
 	public NutritionType getType() {
-		return NutritionType.valueOf(id.getType());
+		return type;
 	}
 
 	public void setType(NutritionType type) {
-		this.id.setType(type.name());
+		this.type = type;
 	}
 
 	public float getAmount() {
@@ -99,6 +50,7 @@ public class RecipeNutrition implements Serializable {
 
 	// </editor-fold>
 
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -106,21 +58,16 @@ public class RecipeNutrition implements Serializable {
 
 		RecipeNutrition that = (RecipeNutrition) o;
 
-		return Objects.equals(id, that.id);
+		return type == that.type;
 	}
 
 	@Override
 	public int hashCode() {
-		return id != null ? id.hashCode() : 0;
+		return type.hashCode();
 	}
 
 	@Override
 	public String toString() {
-		return "RecipeIngredient[" +
-			   "id=" + id +
-			   ", recipe=" + recipe +
-			   ", type=" + getType() +
-			   ", amount=" + amount +
-			   ']';
+		return "RecipeNutrition[type=" + type + ", amount=" + amount + ']';
 	}
 }

@@ -3,22 +3,6 @@ logging:
     net.sandrohc: INFO
 
 spring:
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        order_inserts: true
-        order_updates: true
-        batch_versioned_data: true
-        jdbc:
-          batch_size: 100
-  datasource:
-    hikari:
-      maximum-pool-size: 95 # 32
-      connection-timeout: 200000 # 60000 = 60s
   batch:
     job.enabled: false
     initialize-schema: always
-  flyway:
-    sql-migration-prefix: ''
-    sql-migration-separator: '-'

@@ -1,9 +1,5 @@
 spring:
   profiles: ci
-  datasource:
-    url: jdbc:postgresql://localhost:10001/foodie
-    username: foodie
-    password: foodie
-  jpa:
-    hibernate:
-      ddl-auto: validate
+  data:
+    mongodb:
+      uri: mongodb://foodie:foodie@localhost:10001/foodie

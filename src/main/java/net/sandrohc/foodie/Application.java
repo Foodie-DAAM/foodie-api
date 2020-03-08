@@ -7,10 +7,11 @@ package net.sandrohc.foodie;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
-@SpringBootApplication
-@EnableJpaRepositories("net.sandrohc.foodie.repositories")
+@SpringBootApplication(exclude = {
+		DataSourceAutoConfiguration.class
+})
 @EnableBatchProcessing
 public class Application {
 

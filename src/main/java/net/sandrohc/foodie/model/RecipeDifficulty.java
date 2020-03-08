@@ -1,53 +1,29 @@
+/*
+ * Copyright (c) 2020. Authored by SandroHc
+ */
+
 package net.sandrohc.foodie.model;
 
-import java.io.Serializable;
-import java.util.Objects;
+public class RecipeDifficulty {
 
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
-@Entity
-public class RecipeDifficulty implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-
-	@EmbeddedId
-	public RecipeUserId id = new RecipeUserId();
-
-	@JsonBackReference
-	@MapsId("recipeId")
-	@ManyToOne
-	public Recipe recipe;
-
-	@Column(nullable=false)
+	private long userId;
 	private Difficulty difficulty;
 
+	public RecipeDifficulty() {/* used by the Jackson serializer */}
 
-	public RecipeDifficulty() {
+	public RecipeDifficulty(long userId, Difficulty difficulty) {
+		this.userId = userId;
+		this.difficulty = difficulty;
 	}
-
 
 	// <editor-fold defaultstate="collapsed" desc="Getters & Setters">
 
-	public RecipeUserId getId() {
-		return id;
+	public long getUserId() {
+		return userId;
 	}
 
-	public void setId(RecipeUserId id) {
-		this.id = id;
-	}
-
-	public Recipe getRecipe() {
-		return recipe;
-	}
-
-	public void setRecipe(Recipe recipe) {
-		this.recipe = recipe;
+	public void setUserId(long userId) {
+		this.userId = userId;
 	}
 
 	public Difficulty getDifficulty() {
@@ -60,6 +36,7 @@ public class RecipeDifficulty implements Serializable {
 
 	// </editor-fold>
 
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -67,20 +44,19 @@ public class RecipeDifficulty implements Serializable {
 
 		RecipeDifficulty that = (RecipeDifficulty) o;
 
-		return Objects.equals(id, that.id);
+		return userId == that.userId
+			&& difficulty == that.difficulty;
 	}
 
 	@Override
 	public int hashCode() {
-		return id != null ? id.hashCode() : 0;
+		int result = (int) (userId ^ (userId >>> 32));
+		result = 31 * result + (difficulty != null ? difficulty.hashCode() : 0);
+		return result;
 	}
 
 	@Override
 	public String toString() {
-		return "RecipeDifficulty[" +
-			   "id=" + id +
-			   ", difficulty=" + difficulty +
-			   ']';
+		return "RecipeDifficulty[userId=" + userId + ", difficulty=" + difficulty + ']';
 	}
-
 }

@@ -12,19 +12,20 @@ services:
     networks:
       - backend
   db:
-    image: postgres
+    image: mongo:4
     restart: unless-stopped
-    command: ["postgres", "-c", "log_statement=all"]
+    command: mongod
     volumes:
-      - db:/var/lib/postgresql/data
+      - ./docker/mongo/:/docker-entrypoint-initdb.d/
+      - db:/data/db
     ports:
-      - "10001:5432"
+      - "10001:27017"
     networks:
       - backend
     environment:
-      - POSTGRES_DB=foodie
-      - POSTGRES_USER=foodie
-      - POSTGRES_PASSWORD=foodie
+      - MONGO_INITDB_DATABASE=foodie
+      - MONGO_INITDB_ROOT_USERNAME=foodie
+      - MONGO_INITDB_ROOT_PASSWORD=foodie
 networks:
   backend:
 volumes:

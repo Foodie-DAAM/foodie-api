@@ -4,90 +4,42 @@
 
 package net.sandrohc.foodie.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+public class Recipe {
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
-@SuppressWarnings("unused")
-@Entity
-public class Recipe implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-
-	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE)
 	private int id;
-
-	@Column(nullable=false)
 	private String url;
-
-	@Column(nullable=false)
 	private String title;
-
-	@Column(length=1000)
 	private String description;
-
-	@Column
 	private Integer duration;
-
-	@Column
 	private Integer servings;
-
-	@Column
 	private String picture;
-
-	@JsonManagedReference
-	@OneToMany(
-			mappedBy="recipe",
-			cascade=CascadeType.ALL,
-			orphanRemoval=true
-	)
 	private List<RecipeIngredient> ingredients = new ArrayList<>();
-
-	@JsonManagedReference
-	@OneToMany(
-			mappedBy="recipe",
-			cascade=CascadeType.ALL,
-			orphanRemoval=true
-	)
 	private List<RecipeStep> steps = new ArrayList<>();
-
-	@JsonManagedReference
-	@OneToMany(
-			mappedBy="recipe",
-			cascade=CascadeType.ALL,
-			orphanRemoval=true
-	)
 	private List<RecipeNutrition> nutritionFacts = new ArrayList<>();
-
-	@JsonManagedReference
-	@OneToMany(
-			mappedBy="recipe",
-			cascade=CascadeType.ALL,
-			orphanRemoval=true
-	)
 	private List<RecipeReview> reviews = new ArrayList<>();
-
-	@JsonManagedReference
-	@OneToMany(
-			mappedBy="recipe",
-			cascade=CascadeType.ALL,
-			orphanRemoval=true
-	)
 	private List<RecipeDifficulty> difficulties = new ArrayList<>();
 
+	public Recipe() {/* used by the Jackson serializer */}
 
-	public Recipe() {
+	public Recipe(int id, String url, String title, String description, Integer duration, Integer servings,
+				  String picture, List<RecipeIngredient> ingredients, List<RecipeStep> steps,
+				  List<RecipeNutrition> nutritionFacts, List<RecipeReview> reviews, List<RecipeDifficulty> difficulties) {
+
+		this.id = id;
+		this.url = url;
+		this.title = title;
+		this.description = description;
+		this.duration = duration;
+		this.servings = servings;
+		this.picture = picture;
+		this.ingredients = ingredients;
+		this.steps = steps;
+		this.nutritionFacts = nutritionFacts;
+		this.reviews = reviews;
+		this.difficulties = difficulties;
 	}
 
 	// <editor-fold defaultstate="collapsed" desc="Getters & Setters">
@@ -124,19 +76,19 @@ public class Recipe implements Serializable {
 		this.description = description;
 	}
 
-	public int getDuration() {
+	public Integer getDuration() {
 		return duration;
 	}
 
-	public void setDuration(int duration) {
+	public void setDuration(Integer duration) {
 		this.duration = duration;
 	}
 
-	public int getServings() {
+	public Integer getServings() {
 		return servings;
 	}
 
-	public void setServings(int servings) {
+	public void setServings(Integer servings) {
 		this.servings = servings;
 	}
 
@@ -168,8 +120,8 @@ public class Recipe implements Serializable {
 		return nutritionFacts;
 	}
 
-	public void setNutritionFacts(List<RecipeNutrition> nutrition) {
-		this.nutritionFacts = nutrition;
+	public void setNutritionFacts(List<RecipeNutrition> nutritionFacts) {
+		this.nutritionFacts = nutritionFacts;
 	}
 
 	public List<RecipeReview> getReviews() {
@@ -209,4 +161,5 @@ public class Recipe implements Serializable {
 	public String toString() {
 		return "Recipe[id=" + id + ", title='" + title + "']";
 	}
+
 }

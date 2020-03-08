@@ -1,6 +1,5 @@
 spring:
   profiles: docker
-  datasource:
-    url: jdbc:postgresql://db:5432/foodie
-    username: foodie
-    password: foodie
+  data:
+    mongodb:
+      uri: mongodb://foodie:foodie@db:27017/foodie

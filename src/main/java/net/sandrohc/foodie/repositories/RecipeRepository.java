@@ -5,11 +5,10 @@
 package net.sandrohc.foodie.repositories;
 
 import net.sandrohc.foodie.model.Recipe;
-import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RecipeRepository extends JpaRepositoryImplementation<Recipe, Integer>, PagingAndSortingRepository<Recipe, Integer> {
+public interface RecipeRepository extends ReactiveMongoRepository<Recipe, Integer> {
 
 }

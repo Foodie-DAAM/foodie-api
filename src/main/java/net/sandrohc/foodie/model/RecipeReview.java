@@ -1,47 +1,29 @@
+/*
+ * Copyright (c) 2020. Authored by SandroHc
+ */
+
 package net.sandrohc.foodie.model;
 
-import java.io.Serializable;
-import java.util.Objects;
+public class RecipeReview {
 
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-@Entity
-public class RecipeReview implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-
-	@JsonIgnore
-	@EmbeddedId
-	public RecipeUserId id = new RecipeUserId();
-
-	@JsonBackReference
-	@MapsId("recipeId")
-	@ManyToOne
-	public Recipe recipe;
-
-	@Column(nullable=false)
+	private long userId;
 	private boolean positive;
 
+	public RecipeReview() {/* used by the Jackson serializer */}
 
-	public RecipeReview() {
+	public RecipeReview(long userId, boolean positive) {
+		this.userId = userId;
+		this.positive = positive;
 	}
-
 
 	// <editor-fold defaultstate="collapsed" desc="Getters & Setters">
 
-	public Recipe getRecipe() {
-		return recipe;
+	public long getUserId() {
+		return userId;
 	}
 
-	public void setRecipe(Recipe recipe) {
-		this.recipe = recipe;
+	public void setUserId(long userId) {
+		this.userId = userId;
 	}
 
 	public boolean isPositive() {
@@ -54,6 +36,7 @@ public class RecipeReview implements Serializable {
 
 	// </editor-fold>
 
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -61,19 +44,19 @@ public class RecipeReview implements Serializable {
 
 		RecipeReview that = (RecipeReview) o;
 
-		return Objects.equals(id, that.id);
+		return userId == that.userId
+			&& positive == that.positive;
 	}
 
 	@Override
 	public int hashCode() {
-		return id != null ? id.hashCode() : 0;
+		int result = (int) (userId ^ (userId >>> 32));
+		result = 31 * result + (positive ? 1 : 0);
+		return result;
 	}
 
 	@Override
 	public String toString() {
-		return "RecipeReview[" +
-			   "id=" + id +
-			   ", positive=" + positive +
-			   ']';
+		return "RecipeReview[userId=" + userId + ", positive=" + positive + ']';
 	}
 }
