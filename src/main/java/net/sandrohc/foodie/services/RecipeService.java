@@ -29,6 +29,10 @@ public class RecipeService {
 		this.template = template;
 	}
 
+	public Mono<Recipe> set(Recipe recipe) {
+		return repository.save(recipe);
+	}
+
 	/**
 	 * Looks up a recipe with a given id.
 	 *
@@ -43,8 +47,7 @@ public class RecipeService {
 	public Mono<Page<Recipe>> getAll(PageRequest page) {
 		LOG.info("Find for: " + page);
 
-		Query query = new Query();
-		query.with(page);
+		Query query = new Query().with(page);
 
 		return repository.count()
 				.flatMap(count -> template.find(query, Recipe.class).collectList()

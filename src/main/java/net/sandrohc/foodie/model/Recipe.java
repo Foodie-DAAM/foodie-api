@@ -5,7 +5,9 @@
 package net.sandrohc.foodie.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Recipe {
 
@@ -19,14 +21,14 @@ public class Recipe {
 	private List<RecipeIngredient> ingredients = new ArrayList<>();
 	private List<RecipeStep> steps = new ArrayList<>();
 	private List<RecipeNutrition> nutritionFacts = new ArrayList<>();
-	private List<RecipeReview> reviews = new ArrayList<>();
-	private List<RecipeDifficulty> difficulties = new ArrayList<>();
+	private Set<RecipeReview> reviews = new HashSet<>();
+	private Set<RecipeDifficulty> difficulties = new HashSet<>();
 
 	public Recipe() {/* used by the Jackson serializer */}
 
 	public Recipe(int id, String url, String title, String description, Integer duration, Integer servings,
 				  String picture, List<RecipeIngredient> ingredients, List<RecipeStep> steps,
-				  List<RecipeNutrition> nutritionFacts, List<RecipeReview> reviews, List<RecipeDifficulty> difficulties) {
+				  List<RecipeNutrition> nutritionFacts, Set<RecipeReview> reviews, Set<RecipeDifficulty> difficulties) {
 
 		this.id = id;
 		this.url = url;
@@ -124,19 +126,19 @@ public class Recipe {
 		this.nutritionFacts = nutritionFacts;
 	}
 
-	public List<RecipeReview> getReviews() {
+	public Set<RecipeReview> getReviews() {
 		return reviews;
 	}
 
-	public void setReviews(List<RecipeReview> reviews) {
+	public void setReviews(Set<RecipeReview> reviews) {
 		this.reviews = reviews;
 	}
 
-	public List<RecipeDifficulty> getDifficulties() {
+	public Set<RecipeDifficulty> getDifficulties() {
 		return difficulties;
 	}
 
-	public void setDifficulties(List<RecipeDifficulty> difficulties) {
+	public void setDifficulties(Set<RecipeDifficulty> difficulties) {
 		this.difficulties = difficulties;
 	}
 

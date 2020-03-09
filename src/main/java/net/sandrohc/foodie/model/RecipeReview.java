@@ -44,15 +44,12 @@ public class RecipeReview {
 
 		RecipeReview that = (RecipeReview) o;
 
-		return userId == that.userId
-			&& positive == that.positive;
+		return userId == that.userId;
 	}
 
 	@Override
 	public int hashCode() {
-		int result = (int) (userId ^ (userId >>> 32));
-		result = 31 * result + (positive ? 1 : 0);
-		return result;
+		return (int) (userId ^ (userId >>> 32));
 	}
 
 	@Override
