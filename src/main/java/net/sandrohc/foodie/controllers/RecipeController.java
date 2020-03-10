@@ -7,6 +7,7 @@ package net.sandrohc.foodie.controllers;
 import java.util.Date;
 
 import net.sandrohc.foodie.model.Recipe;
+import net.sandrohc.foodie.model.dto.RecipeSimple;
 import net.sandrohc.foodie.services.RecipeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,7 @@ public class RecipeController {
 //			@ApiResponse(responseCode="200", description="get All Recipes")
 //	})
 	@GetMapping(produces=MediaType.APPLICATION_JSON_VALUE)
-	public Mono<Page<Recipe>> getAll(
+	public Mono<Page<RecipeSimple>> getAll(
 			@RequestParam(value="page", defaultValue="0") int page,
 			@RequestParam(value="size", defaultValue="10") int size,
 			@RequestParam(value="sort", defaultValue="title") String sort) {
@@ -90,6 +91,11 @@ public class RecipeController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID not filled");
 
 		return recipeService.getBy(id);
+	}
+
+	@GetMapping(value="random", produces=MediaType.APPLICATION_JSON_VALUE)
+	public Mono<Recipe> getRandom() {
+		return recipeService.getRandom();
 	}
 
 }

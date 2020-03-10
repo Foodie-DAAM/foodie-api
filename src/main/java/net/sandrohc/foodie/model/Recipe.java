@@ -5,12 +5,13 @@
 package net.sandrohc.foodie.model;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import org.springframework.data.annotation.Id;
 
 public class Recipe {
 
+	@Id
 	private int id;
 	private String url;
 	private String title;
@@ -21,14 +22,12 @@ public class Recipe {
 	private List<RecipeIngredient> ingredients = new ArrayList<>();
 	private List<RecipeStep> steps = new ArrayList<>();
 	private List<RecipeNutrition> nutritionFacts = new ArrayList<>();
-	private Set<RecipeReview> reviews = new HashSet<>();
-	private Set<RecipeDifficulty> difficulties = new HashSet<>();
 
 	public Recipe() {/* used by the Jackson serializer */}
 
 	public Recipe(int id, String url, String title, String description, Integer duration, Integer servings,
 				  String picture, List<RecipeIngredient> ingredients, List<RecipeStep> steps,
-				  List<RecipeNutrition> nutritionFacts, Set<RecipeReview> reviews, Set<RecipeDifficulty> difficulties) {
+				  List<RecipeNutrition> nutritionFacts) {
 
 		this.id = id;
 		this.url = url;
@@ -40,8 +39,6 @@ public class Recipe {
 		this.ingredients = ingredients;
 		this.steps = steps;
 		this.nutritionFacts = nutritionFacts;
-		this.reviews = reviews;
-		this.difficulties = difficulties;
 	}
 
 	// <editor-fold defaultstate="collapsed" desc="Getters & Setters">
@@ -124,22 +121,6 @@ public class Recipe {
 
 	public void setNutritionFacts(List<RecipeNutrition> nutritionFacts) {
 		this.nutritionFacts = nutritionFacts;
-	}
-
-	public Set<RecipeReview> getReviews() {
-		return reviews;
-	}
-
-	public void setReviews(Set<RecipeReview> reviews) {
-		this.reviews = reviews;
-	}
-
-	public Set<RecipeDifficulty> getDifficulties() {
-		return difficulties;
-	}
-
-	public void setDifficulties(Set<RecipeDifficulty> difficulties) {
-		this.difficulties = difficulties;
 	}
 
 	// </editor-fold>

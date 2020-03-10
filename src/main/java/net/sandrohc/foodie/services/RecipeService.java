@@ -5,6 +5,7 @@
 package net.sandrohc.foodie.services;
 
 import net.sandrohc.foodie.model.Recipe;
+import net.sandrohc.foodie.model.dto.RecipeSimple;
 import net.sandrohc.foodie.repositories.RecipeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,17 +42,37 @@ public class RecipeService {
 	 */
 	public Mono<Recipe> getBy(Integer id) {
 		LOG.info("Finding entity: {}", id);
+
+		// TODO: agregate difficulty and reviews
+//		GroupOperation averageReviews = Accumulators.avg("reviews.positive").as("statePop");
+//
+//		Aggregation aggregation = newAggregation(averageReviews);
+//		AggregationResults<StatePopulation> result = template.aggregate(
+//				aggregation, "zips", StatePopulation.class);
+
 		return repository.findById(id);
 	}
 
-	public Mono<Page<Recipe>> getAll(PageRequest page) {
+	public Mono<Page<RecipeSimple>> getAll(PageRequest page) {
 		LOG.info("Find for: " + page);
 
 		Query query = new Query().with(page);
 
+		query.fields()
+				.include("title")
+				.include("description")
+				.include("duration")
+				.include("servings");
+
 		return repository.count()
-				.flatMap(count -> template.find(query, Recipe.class).collectList()
+				.flatMap(count -> template.find(query, Recipe.class)
+						.map(RecipeSimple::new)
+						.collectList()
 						.map(results -> new PageImpl<>(results, page, count)));
+	}
+
+	public Mono<Recipe> getRandom() {
+		return repository.findRandom();
 	}
 
 }

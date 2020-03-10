@@ -4,14 +4,16 @@
 
 package net.sandrohc.foodie.model;
 
-public class RecipeReview {
+public class Review {
 
+	private int recipeId;
 	private long userId;
 	private boolean positive;
 
-	public RecipeReview() {/* used by the Jackson serializer */}
+	public Review() {/* used by the Jackson serializer */}
 
-	public RecipeReview(long userId, boolean positive) {
+	public Review(int recipeId, long userId, boolean positive) {
+		this.recipeId = recipeId;
 		this.userId = userId;
 		this.positive = positive;
 	}
@@ -42,18 +44,21 @@ public class RecipeReview {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		RecipeReview that = (RecipeReview) o;
+		Review review = (Review) o;
 
-		return userId == that.userId;
+		return recipeId != review.recipeId
+			&& userId == review.userId;
 	}
 
 	@Override
 	public int hashCode() {
-		return (int) (userId ^ (userId >>> 32));
+		int result = recipeId;
+		result = 31 * result + (int) (userId ^ (userId >>> 32));
+		return result;
 	}
 
 	@Override
 	public String toString() {
-		return "RecipeReview[userId=" + userId + ", positive=" + positive + ']';
+		return "RecipeReview[recipeId=" + recipeId + ", userId=" + userId + ", positive=" + positive + ']';
 	}
 }

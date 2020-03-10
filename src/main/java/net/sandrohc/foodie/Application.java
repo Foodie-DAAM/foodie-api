@@ -15,6 +15,25 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 @EnableBatchProcessing
 public class Application {
 
+	/*
+	 * TODO
+	 *  - Recipe service:
+	 *    - getByIngredients
+	 *    - getById
+	 *    - getByTitle
+	 *    - getAll
+	 *  - Review service:
+	 *    - getReviewsByRecipeId
+	 *    - getAverageReviewByRecipeId
+	 *    - setReviewByRecipeId
+	 *  - Difficulty service:
+	 *    - getDifficultiesByRecipeId
+	 *    - getAverageDifficultyByRecipeId
+	 *    - setDifficultyByRecipeId
+	 *  - Ingredients service:
+	 *    - getAutocomplete
+	 */
+
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
