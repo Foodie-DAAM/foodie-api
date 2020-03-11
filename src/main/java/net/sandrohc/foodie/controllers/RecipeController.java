@@ -19,14 +19,13 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 //@Tag(name="Recipes", description="Gives access to available recipes.")
@@ -87,10 +86,12 @@ public class RecipeController {
 //	})
 	@GetMapping(value="{id}", produces=MediaType.APPLICATION_JSON_VALUE)
 	public Mono<Recipe> getBy(@PathVariable Integer id) {
-		if (id == null)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID not filled");
-
 		return recipeService.getBy(id);
+	}
+
+	@GetMapping(value="ingredient/{ingredient}", produces=MediaType.APPLICATION_JSON_VALUE)
+	public Flux<Recipe> getBy(@PathVariable String ingredient) {
+		return recipeService.getByIngredient(ingredient);
 	}
 
 	@GetMapping(value="random", produces=MediaType.APPLICATION_JSON_VALUE)

@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -42,15 +43,11 @@ public class RecipeService {
 	 */
 	public Mono<Recipe> getBy(Integer id) {
 		LOG.info("Finding entity: {}", id);
-
-		// TODO: agregate difficulty and reviews
-//		GroupOperation averageReviews = Accumulators.avg("reviews.positive").as("statePop");
-//
-//		Aggregation aggregation = newAggregation(averageReviews);
-//		AggregationResults<StatePopulation> result = template.aggregate(
-//				aggregation, "zips", StatePopulation.class);
-
 		return repository.findById(id);
+	}
+
+	public Flux<Recipe> getByIngredient(String ingredient) {
+		return repository.findAllByIngredient(ingredient);
 	}
 
 	public Mono<Page<RecipeSimple>> getAll(PageRequest page) {

@@ -6,41 +6,37 @@ package net.sandrohc.foodie.services;
 
 import net.sandrohc.foodie.model.Recipe;
 import net.sandrohc.foodie.model.Review;
-import net.sandrohc.foodie.repositories.RecipeRepository;
+import net.sandrohc.foodie.repositories.ReviewRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.GroupOperation;
-import org.springframework.data.mongodb.core.aggregation.MatchOperation;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
-
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Component
 public class ReviewService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ReviewService.class);
 
-	private final RecipeService service;
-	private final RecipeRepository repository;
-	private final ReactiveMongoTemplate template;
+	private final ReviewRepository repository;
 
-	public ReviewService(RecipeService service, RecipeRepository repository, ReactiveMongoTemplate template) {
-		this.service = service;
+	public ReviewService(ReviewRepository repository) {
 		this.repository = repository;
-		this.template = template;
+	}
+
+	public Flux<Review> getReviewsByRecipeId(int recipeId) {
+		return repository.findAllByRecipeId(recipeId);
 	}
 
 	/**
-	 * Looks up a recipe with a given id.
+	 * Saved the review of the specified recipe.
 	 *
-	 * @param recipeId The id to look the recipe up for.
+	 * @param recipeId The ID of the recipe.
+	 * @param userId The user making the review.
 	 * @param positive
 	 * @return the {@link Recipe} updated.
 	 */
-	public void set(int recipeId, int userId, boolean positive) {
+	public Mono<Review> setReviewByRecipeId(int recipeId, int userId, boolean positive) {
 		LOG.info("New review: recipe={} user={} value={}", recipeId, userId, positive);
 
 //		GroupOperation groupByStateAndSumPop = avg("review").as("averageReview");
@@ -51,14 +47,8 @@ public class ReviewService {
 //		AggregationResults<StatePopulation> result = mongoTemplate.aggregate(
 //				aggregation, "zips", StatePopulation.class);
 
-
-
-
-//		service.getBy(recipeId).subscribe(recipe -> {
-//			recipe.getReviews().removeIf(r -> r.getUserId() == userId);
-//			recipe.getReviews().add(new Review(userId, positive));
-//			service.set(recipe).subscribe();
-//		});
+		Review review = new Review(recipeId, userId, positive);
+		return repository.save(review);
 	}
 
 }

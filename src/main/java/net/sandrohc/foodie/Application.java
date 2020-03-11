@@ -18,14 +18,14 @@ public class Application {
 	/*
 	 * TODO
 	 *  - Recipe service:
-	 *    - getByIngredients
-	 *    - getById
+	 *    - getByIngredients (done for a single ingredient)
+	 *    - ✓ getById
 	 *    - getByTitle
-	 *    - getAll
+	 *    - ✓ getAll (pages)
 	 *  - Review service:
-	 *    - getReviewsByRecipeId
+	 *    - ✓getReviewsByRecipeId
 	 *    - getAverageReviewByRecipeId
-	 *    - setReviewByRecipeId
+	 *    - ✓ setReviewByRecipeId
 	 *  - Difficulty service:
 	 *    - getDifficultiesByRecipeId
 	 *    - getAverageDifficultyByRecipeId

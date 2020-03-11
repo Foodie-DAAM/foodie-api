@@ -23,6 +23,9 @@ public interface RecipeRepository extends ReactiveMongoRepository<Recipe, Intege
 
 	Flux<Recipe> findAllByIngredients(List<RecipeIngredient> recipeIngredient);
 
+	@Query("{ 'ingredients.name': { $regex: ?0 } }")
+	Flux<Recipe> findAllByIngredient(String ingredient);
+
 	Flux<Recipe> findByTitle(String title);
 
 }
