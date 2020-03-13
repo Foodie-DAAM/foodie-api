@@ -8,12 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document
 public class Recipe {
 
 	@Id
 	private int id;
 	private String url;
+
+	@Indexed
 	private String title;
 	private String description;
 	private Integer duration;
