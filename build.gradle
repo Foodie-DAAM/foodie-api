@@ -35,8 +35,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-//	implementation 'org.springdoc:springdoc-openapi-core:1.1.49'
-//	implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.1.49'
+	implementation 'org.springdoc:springdoc-openapi-webflux-core:1.1.49'
+	implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.1.49'
 
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
