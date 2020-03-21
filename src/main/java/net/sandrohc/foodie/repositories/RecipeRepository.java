@@ -21,7 +21,8 @@ public interface RecipeRepository extends ReactiveMongoRepository<Recipe, Intege
 	@Aggregation("{ $sample: { size: 1 } }")
 	Mono<Recipe> findRandom();
 
-	Flux<Recipe> findAllByIngredients(List<RecipeIngredient> recipeIngredient);
+	@Query(value = "{ 'ingredients' : {$all : [?0] }}")
+	Flux<Recipe> findAllByIngredients(String[]  recipeIngredient);
 
 	@Query("{ 'ingredients.name': { $regex: ?0 } }")
 	Flux<Recipe> findAllByIngredient(String ingredient);

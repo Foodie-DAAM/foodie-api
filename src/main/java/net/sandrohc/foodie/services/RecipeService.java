@@ -15,9 +15,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
+@Service
 @Component
 public class RecipeService {
 
@@ -48,6 +52,11 @@ public class RecipeService {
 
 	public Flux<Recipe> getByIngredient(String ingredient) {
 		return repository.findAllByIngredient(ingredient);
+	}
+
+	public Flux<Recipe> getByIngredients(String[]  ingredient) {
+
+		return repository.findAllByIngredients(ingredient);
 	}
 
 	public Mono<Page<RecipeSimple>> getAll(PageRequest page) {

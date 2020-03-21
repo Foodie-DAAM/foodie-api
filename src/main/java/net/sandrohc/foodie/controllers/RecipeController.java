@@ -5,6 +5,7 @@
 package net.sandrohc.foodie.controllers;
 
 import java.util.Date;
+import java.util.List;
 
 import net.sandrohc.foodie.model.Recipe;
 import net.sandrohc.foodie.model.dto.RecipeSimple;
@@ -30,7 +31,7 @@ import reactor.core.publisher.Mono;
 
 //@Tag(name="Recipes", description="Gives access to available recipes.")
 @RestController
-@RequestMapping("/recipe")
+@RequestMapping("/recipes")
 public class RecipeController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RecipeController.class);
@@ -67,9 +68,7 @@ public class RecipeController {
 	}
 
 
-//	@ApiResponses(value = {
-//			@ApiResponse(responseCode="200", description="get All Recipes")
-//	})
+
 	@GetMapping(produces=MediaType.APPLICATION_JSON_VALUE)
 	public Mono<Page<RecipeSimple>> getAll(
 			@RequestParam(value="page", defaultValue="0") int page,
@@ -80,10 +79,7 @@ public class RecipeController {
 	}
 
 
-//	@ApiResponses(value = {
-//			@ApiResponse(responseCode="200", description="get Recipe by ID"),
-//			@ApiResponse(responseCode="404", description="recipe not found")
-//	})
+
 	@GetMapping(value="{id}", produces=MediaType.APPLICATION_JSON_VALUE)
 	public Mono<Recipe> getBy(@PathVariable Integer id) {
 		return recipeService.getBy(id);
@@ -92,6 +88,11 @@ public class RecipeController {
 	@GetMapping(value="ingredient/{ingredient}", produces=MediaType.APPLICATION_JSON_VALUE)
 	public Flux<Recipe> getBy(@PathVariable String ingredient) {
 		return recipeService.getByIngredient(ingredient);
+	}
+
+	@GetMapping(value="ingredients/{ingredient}", produces=MediaType.APPLICATION_JSON_VALUE)
+	public Flux<Recipe> getByIngredients(@PathVariable String[] ingredient) {
+		return recipeService.getByIngredients(ingredient);
 	}
 
 	@GetMapping(value="random", produces=MediaType.APPLICATION_JSON_VALUE)
