@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.util.Collection;
 
 @Service
 @Component
@@ -45,17 +45,16 @@ public class RecipeService {
 	 * @param id The id to look the recipe up for.
 	 * @return the requested {@link Recipe}.
 	 */
-	public Mono<Recipe> getBy(Integer id) {
+	public Mono<Recipe> getById(Integer id) {
 		LOG.info("Finding entity: {}", id);
 		return repository.findById(id);
 	}
 
-	public Flux<Recipe> getByIngredient(String ingredient) {
-		return repository.findAllByIngredient(ingredient);
+	public Flux<Recipe> getByTitle(String title) {
+		return repository.findAllByTitle(title);
 	}
 
-	public Flux<Recipe> getByIngredients(String[]  ingredient) {
-
+	public Flux<Recipe> getByIngredients(Collection<String> ingredient) {
 		return repository.findAllByIngredients(ingredient);
 	}
 
@@ -77,8 +76,8 @@ public class RecipeService {
 						.map(results -> new PageImpl<>(results, page, count)));
 	}
 
-	public Mono<Recipe> getRandom() {
-		return repository.findRandom();
+	public Flux<Recipe> getRandom(int num) {
+		return repository.findRandom(num);
 	}
 
 }

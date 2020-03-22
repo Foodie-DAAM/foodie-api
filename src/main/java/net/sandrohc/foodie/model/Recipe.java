@@ -12,37 +12,30 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
-@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded=true)
+@ToString(onlyExplicitlyIncluded=true)
 @Document
 public class Recipe {
 
 	@Id
+	@ToString.Include
+	@EqualsAndHashCode.Include
 	private int id;
 	private String url;
 
 	@Indexed
+	@ToString.Include
 	private String title;
 	private String description;
 	private Integer duration;
 	private Integer servings;
 	private String picture;
-	private List<RecipeIngredient> ingredients = new ArrayList<RecipeIngredient>();
-	private List<RecipeStep> steps = new ArrayList<RecipeStep>();
-	private List<RecipeNutrition> nutritionFacts = new ArrayList<RecipeNutrition>();
-
-
-	@Override
-	public int hashCode() {
-		return id;
-	}
-
-	@Override
-	public String toString() {
-		return "Recipe[id=" + id + ", title='" + title + "']";
-	}
+	private List<RecipeIngredient> ingredients = new ArrayList<>();
+	private List<RecipeStep> steps = new ArrayList<>();
+	private List<RecipeNutrition> nutritionFacts = new ArrayList<>();
 
 }

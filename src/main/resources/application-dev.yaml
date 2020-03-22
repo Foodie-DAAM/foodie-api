@@ -7,4 +7,4 @@ spring:
   profiles: dev
   data:
     mongodb:
-      uri: mongodb://foodie:foodie@localhost:10001/foodie
+      uri: mongodb://foodie:foodie@localhost:27017/foodie

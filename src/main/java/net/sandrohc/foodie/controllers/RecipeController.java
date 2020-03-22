@@ -6,12 +6,14 @@ package net.sandrohc.foodie.controllers;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import net.sandrohc.foodie.model.Recipe;
 import net.sandrohc.foodie.model.dto.RecipeSimple;
 import net.sandrohc.foodie.services.RecipeService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
@@ -20,7 +22,6 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,12 +30,10 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-//@Tag(name="Recipes", description="Gives access to available recipes.")
+@Tag(name="Recipes", description="Gives access to recipe data.")
 @RestController
 @RequestMapping("/recipes")
 public class RecipeController {
-
-	private static final Logger LOG = LoggerFactory.getLogger(RecipeController.class);
 
 	private final JobLauncher jobLauncher;
 	private final Job job;
@@ -51,7 +50,7 @@ public class RecipeController {
 		this.recipeService = recipeService;
 	}
 
-
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "populate database with test data") })
 	@GetMapping("digest")
 	public String executeJob() {
 		try {
@@ -67,9 +66,8 @@ public class RecipeController {
 		}
 	}
 
-
-
-	@GetMapping(produces=MediaType.APPLICATION_JSON_VALUE)
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "get all recipes") })
+	@GetMapping
 	public Mono<Page<RecipeSimple>> getAll(
 			@RequestParam(value="page", defaultValue="0") int page,
 			@RequestParam(value="size", defaultValue="10") int size,
@@ -78,26 +76,31 @@ public class RecipeController {
 		return recipeService.getAll(PageRequest.of(page, size, Sort.by(sort)));
 	}
 
-
-
-	@GetMapping(value="{id}", produces=MediaType.APPLICATION_JSON_VALUE)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "get recipe by ID"),
+			@ApiResponse(responseCode = "404", description = "recipe does not exist")
+	})
+	@GetMapping(value="{id}")
 	public Mono<Recipe> getBy(@PathVariable Integer id) {
-		return recipeService.getBy(id);
+		return recipeService.getById(id);
 	}
 
-	@GetMapping(value="ingredient/{ingredient}", produces=MediaType.APPLICATION_JSON_VALUE)
-	public Flux<Recipe> getBy(@PathVariable String ingredient) {
-		return recipeService.getByIngredient(ingredient);
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "get recipes by title") })
+	@GetMapping(value="search/title/{title}")
+	public Flux<Recipe> getBy(@PathVariable String title) {
+		return recipeService.getByTitle(title);
 	}
 
-	@GetMapping(value="ingredients/{ingredient}", produces=MediaType.APPLICATION_JSON_VALUE)
-	public Flux<Recipe> getByIngredients(@PathVariable String[] ingredient) {
-		return recipeService.getByIngredients(ingredient);
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "get recipes by ingredients") })
+	@GetMapping(value="search/ingredients/{ingredients}")
+	public Flux<Recipe> getByIngredients(@PathVariable List<String> ingredients) {
+		return recipeService.getByIngredients(ingredients);
 	}
 
-	@GetMapping(value="random", produces=MediaType.APPLICATION_JSON_VALUE)
-	public Mono<Recipe> getRandom() {
-		return recipeService.getRandom();
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "get random recipes") })
+	@GetMapping(value={ "search/random", "search/random/{num}" })
+	public Flux<Recipe> getRandom(@PathVariable Optional<Integer> num) {
+		return recipeService.getRandom(num.orElse(1));
 	}
 
 }

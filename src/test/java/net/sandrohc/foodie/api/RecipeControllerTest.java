@@ -48,7 +48,7 @@ public class RecipeControllerTest {
 				.when(repository.findById(1))
 				.thenReturn(recipeFlux);
 
-		webClient.get().uri("/recipe/{id}", 1)
+		webClient.get().uri("/recipes/{id}", 1)
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.exchange()
 				.expectStatus().isOk()
