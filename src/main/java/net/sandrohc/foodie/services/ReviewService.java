@@ -24,8 +24,12 @@ public class ReviewService {
 		this.repository = repository;
 	}
 
-	public Flux<Review> getReviewsByRecipeId(int recipeId) {
+	public Flux<Review> getAllReviewsByRecipeId(int recipeId) {
 		return repository.findAllByRecipeId(recipeId);
+	}
+
+	public Mono<Double> getAverageReviewsByRecipeId(int recipeId) {
+		return repository.findAverageByRecipeId(recipeId);
 	}
 
 	/**

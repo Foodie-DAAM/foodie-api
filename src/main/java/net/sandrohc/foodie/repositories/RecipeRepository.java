@@ -17,7 +17,7 @@ import reactor.core.publisher.Flux;
 public interface RecipeRepository extends ReactiveMongoRepository<Recipe, Integer> {
 
 
-	@Query(value = "{ 'ingredients.name' : { $all : [?0] }}")
+	@Query(value = "{ 'ingredients.name' : { $in : [?0] }}")
 	Flux<Recipe> findAllByIngredients(Collection<String> ingredients);
 
 	Flux<Recipe> findAllByTitle(String title);
