@@ -10,8 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -22,20 +21,19 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 @Document
-@CompoundIndexes({
-		@CompoundIndex(name = "recipe_user_idx", def = "{'recipeId': 1, 'userId': 1}", unique = true)
-})
-public class Difficulty {
+public class Comment {
+
+	@Id
+	@EqualsAndHashCode.Include
+	private String id;
 
 	@Indexed
-	@EqualsAndHashCode.Include
 	private int recipeId;
 
 	@Indexed
-	@EqualsAndHashCode.Include
-	private long userId;
+	private int userId;
 
-	@Indexed
-	private DifficultyLevel level;
+	private String text;
+	private String reaction;
 
 }

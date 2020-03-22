@@ -24,11 +24,11 @@ public class ReviewService {
 		this.repository = repository;
 	}
 
-	public Flux<Review> getAllReviewsByRecipeId(int recipeId) {
+	public Flux<Review> getAllByRecipeId(int recipeId) {
 		return repository.findAllByRecipeId(recipeId);
 	}
 
-	public Mono<Double> getAverageReviewsByRecipeId(int recipeId) {
+	public Mono<Double> getAverageByRecipeId(int recipeId) {
 		return repository.findAverageByRecipeId(recipeId);
 	}
 
@@ -40,7 +40,7 @@ public class ReviewService {
 	 * @param positive
 	 * @return the {@link Recipe} updated.
 	 */
-	public Mono<Review> setReviewByRecipeId(int recipeId, int userId, boolean positive) {
+	public Mono<Review> setByRecipeId(int recipeId, int userId, boolean positive) {
 		LOG.info("New review: recipe={} user={} value={}", recipeId, userId, positive);
 
 //		GroupOperation groupByStateAndSumPop = avg("review").as("averageReview");

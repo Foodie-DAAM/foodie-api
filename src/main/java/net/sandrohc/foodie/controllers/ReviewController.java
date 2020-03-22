@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Tag(name="Reviews", description="Gives access to review data.")
+@Tag(name = "Reviews", description = "Manages reviews for all recipes.")
 @RestController
 @RequestMapping("/reviews")
 public class ReviewController {
@@ -28,22 +28,22 @@ public class ReviewController {
 	}
 
 
-	@GetMapping(value="{recipeId}/all")
+	@GetMapping(value = "{recipeId}")
 	public Flux<Review> getAllByRecipeId(@PathVariable Integer recipeId) {
-		return reviewService.getAllReviewsByRecipeId(recipeId);
+		return reviewService.getAllByRecipeId(recipeId);
 	}
 
-	@GetMapping(value="{recipeId}/avg")
-	public Mono<Double> getAverageReviewsByRecipeId(@PathVariable Integer recipeId) {
-		return reviewService.getAverageReviewsByRecipeId(recipeId);
+	@GetMapping(value = "{recipeId}/avg")
+	public Mono<Double> getAverageByRecipeId(@PathVariable Integer recipeId) {
+		return reviewService.getAverageByRecipeId(recipeId);
 	}
 
-	@PutMapping(value="{recipeId}")
-	public void setReviewByRecipeId(@PathVariable Integer recipeId,
-									@RequestParam(value="user") Integer userId,
-									@RequestParam(value="rating") Boolean positive) {
+	@PutMapping(value = "{recipeId}")
+	public void setByRecipeId(@PathVariable Integer recipeId,
+									@RequestParam(value = "user") Integer userId,
+									@RequestParam(value = "rating") Boolean positive) {
 
-		reviewService.setReviewByRecipeId(recipeId, userId, positive).subscribe();
+		reviewService.setByRecipeId(recipeId, userId, positive).subscribe();
 	}
 
 }

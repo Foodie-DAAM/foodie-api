@@ -24,12 +24,12 @@ public class Recipe {
 	@Id
 	@ToString.Include
 	@EqualsAndHashCode.Include
-	private int id;
-	private String url;
+	private Integer id;
 
 	@Indexed
 	@ToString.Include
 	private String title;
+	private String url;
 	private String description;
 	private Integer duration;
 	private Integer servings;

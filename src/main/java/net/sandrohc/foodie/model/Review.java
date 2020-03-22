@@ -4,6 +4,14 @@
 
 package net.sandrohc.foodie.model;
 
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document
+@CompoundIndexes({
+		@CompoundIndex(name = "recipe_user_idx", def = "{'recipeId': 1, 'userId': 1}", unique = true)
+})
 public class Review {
 
 	private int recipeId;
