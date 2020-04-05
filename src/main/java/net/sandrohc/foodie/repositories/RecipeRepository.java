@@ -20,6 +20,7 @@ public interface RecipeRepository extends ReactiveMongoRepository<Recipe, Intege
 	@Query(value = "{ 'ingredients.name' : { $in : [?0] }}")
 	Flux<Recipe> findAllByIngredients(Collection<String> ingredients);
 
+	@Query(value = "{ 'title' : { $regex : '.*?0.*', $options: 'i' }}")
 	Flux<Recipe> findAllByTitle(String title);
 
 	@Aggregation("{ $sample: { size: ?0 } }")

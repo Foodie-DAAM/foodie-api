@@ -13,13 +13,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Collection;
+import java.util.List;
 
 @Service
 @Component
@@ -50,12 +51,28 @@ public class RecipeService {
 		return repository.findById(id);
 	}
 
-	public Flux<Recipe> getByTitle(String title) {
-		return repository.findAllByTitle(title);
-	}
+	public Mono<Page<RecipeSimple>> search(PageRequest page, String title, List<String> ingredients) {
+		Query query = new Query().with(page);
 
-	public Flux<Recipe> getByIngredients(Collection<String> ingredient) {
-		return repository.findAllByIngredients(ingredient);
+		if (title != null && !title.isBlank()) {
+			query.addCriteria(Criteria.where("title").regex(".*" + title.trim() + ".*", "i"));
+		}
+
+		if (ingredients != null && !ingredients.isEmpty()) {
+			query.addCriteria(Criteria.where("ingredients.name").in(ingredients));
+		}
+
+		query.fields()
+				.include("title")
+				.include("description")
+				.include("duration")
+				.include("servings");
+
+		return template.count(query, Recipe.class)
+				.flatMap(count -> template.find(query, Recipe.class)
+						.map(RecipeSimple::new)
+						.collectList()
+						.map(results -> new PageImpl<>(results, page, count)));
 	}
 
 	public Mono<Page<RecipeSimple>> getAll(PageRequest page) {

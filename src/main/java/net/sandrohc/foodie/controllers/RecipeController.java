@@ -85,20 +85,22 @@ public class RecipeController {
 		return recipeService.getById(id);
 	}
 
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "get recipes by title") })
-	@GetMapping(value="search/title/{title}")
-	public Flux<Recipe> getBy(@PathVariable String title) {
-		return recipeService.getByTitle(title);
-	}
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "search recipes with optional filters") })
+	@GetMapping(value="search")
+	public Mono<Page<RecipeSimple>> search(
+			@RequestParam(value="page", defaultValue="0") int page,
+			@RequestParam(value="size", defaultValue="10") int size,
+			@RequestParam(value="sort", defaultValue="title") String sort,
 
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "get recipes by ingredients") })
-	@GetMapping(value="search/ingredients/{ingredients}")
-	public Flux<Recipe> getByIngredients(@PathVariable List<String> ingredients) {
-		return recipeService.getByIngredients(ingredients);
+			@RequestParam(value="title", required=false) String title,
+			@RequestParam(value="ingredients", required=false) List<String> ingredients) {
+
+		PageRequest pageable = PageRequest.of(page, size, Sort.by(sort));
+		return recipeService.search(pageable, title, ingredients);
 	}
 
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "get random recipes") })
-	@GetMapping(value={ "search/random", "search/random/{num}" })
+	@GetMapping(value={ "random", "random/{num}" })
 	public Flux<Recipe> getRandom(@PathVariable Optional<Integer> num) {
 		return recipeService.getRandom(num.orElse(1));
 	}

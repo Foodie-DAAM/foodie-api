@@ -5,9 +5,11 @@
 package net.sandrohc.foodie.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 public class RecipeIngredient {
 
+	@Indexed
 	private String name;
 	private UnitType type;
 	private float amount;
