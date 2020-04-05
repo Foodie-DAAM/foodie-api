@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -51,7 +51,7 @@ public class RecipeService {
 		return repository.findById(id);
 	}
 
-	public Mono<Page<RecipeSimple>> search(PageRequest page, String title, List<String> ingredients) {
+	public Mono<Page<RecipeSimple>> search(Pageable page, String title, List<String> ingredients) {
 		Query query = new Query().with(page);
 
 		if (title != null && !title.isBlank()) {
@@ -75,7 +75,7 @@ public class RecipeService {
 						.map(results -> new PageImpl<>(results, page, count)));
 	}
 
-	public Mono<Page<RecipeSimple>> getAll(PageRequest page) {
+	public Mono<Page<RecipeSimple>> getAll(Pageable page) {
 		LOG.info("Find for: " + page);
 
 		Query query = new Query().with(page);

@@ -7,7 +7,6 @@ package net.sandrohc.foodie.controllers;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import net.sandrohc.foodie.model.Comment;
 import net.sandrohc.foodie.services.CommentService;
-import org.bson.types.ObjectId;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

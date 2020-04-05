@@ -20,8 +20,8 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -69,11 +69,9 @@ public class RecipeController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "get all recipes") })
 	@GetMapping
 	public Mono<Page<RecipeSimple>> getAll(
-			@RequestParam(value="page", defaultValue="0") int page,
-			@RequestParam(value="size", defaultValue="10") int size,
-			@RequestParam(value="sort", defaultValue="title") String sort) {
+			final @PageableDefault(sort="title") Pageable pageable) {
 
-		return recipeService.getAll(PageRequest.of(page, size, Sort.by(sort)));
+		return recipeService.getAll(pageable);
 	}
 
 	@ApiResponses(value = {
@@ -88,14 +86,10 @@ public class RecipeController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "search recipes with optional filters") })
 	@GetMapping(value="search")
 	public Mono<Page<RecipeSimple>> search(
-			@RequestParam(value="page", defaultValue="0") int page,
-			@RequestParam(value="size", defaultValue="10") int size,
-			@RequestParam(value="sort", defaultValue="title") String sort,
+			final @PageableDefault(sort="title") Pageable pageable,
+			final @RequestParam(value="title", required=false) String title,
+			final @RequestParam(value="ingredients", required=false) List<String> ingredients) {
 
-			@RequestParam(value="title", required=false) String title,
-			@RequestParam(value="ingredients", required=false) List<String> ingredients) {
-
-		PageRequest pageable = PageRequest.of(page, size, Sort.by(sort));
 		return recipeService.search(pageable, title, ingredients);
 	}
 
