@@ -7,8 +7,8 @@
 - http://localhost:8080/v3/api-docs.yaml
 - http://localhost:8080/swagger-ui.html
 
-| Verb | Endpoint       | Description                                         |
-|------|----------------|-----------------------------------------------------|
+| Verb | Endpoint        | Description                                        |
+|------|-----------------|----------------------------------------------------|
 | GET  | /recipes        | Get all recipes, paged.                            |
 | GET  | /recipes/{id}   | Get recipe with ID.                                |
 | GET  | /recipes/digest | Run batch job to populate database with test data. |

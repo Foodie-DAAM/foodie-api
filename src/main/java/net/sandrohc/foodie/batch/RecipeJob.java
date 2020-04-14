@@ -71,13 +71,23 @@ public class RecipeJob {
 				.<RecipeJson, Recipe>chunk(1000)
 				.reader(reader)
 				.processor(new RecipeProcessor())
-				.writer(writer())
+				.writer(writerRecipes())
 				.faultTolerant()
 				.skipLimit(Integer.MAX_VALUE)
 				.skip(MissingUrlException.class)
 				.skip(MissingIdException.class)
 				.build();
 	}
+
+//	@Bean
+//	public Step stepLoadIngredients(ItemReader<Recipe> reader) {
+//		return stepBuilderFactory.get("load data")
+//				.<Recipe, Collection<Ingredient>>chunk(1000)
+//				.reader(reader)
+//				.processor(new IngredientProcessor())
+//				.writer(writerIngredients())
+//				.build();
+//	}
 
 	@Bean
 	public MultiResourcePartitioner partitioner() {
@@ -96,7 +106,7 @@ public class RecipeJob {
 	@SuppressWarnings("SpringElInspection")
 	@Bean
 	@StepScope
-	public JsonItemReader<RecipeJson> reader(@Value("#{stepExecutionContext[fileName]}") String filename) {
+	public JsonItemReader<RecipeJson> readerJsonFiles(@Value("#{stepExecutionContext[fileName]}") String filename) {
 		final Resource resource;
 
 		if (filename.startsWith("jar:")) {
@@ -115,9 +125,26 @@ public class RecipeJob {
 				.build();
 	}
 
+//	@Bean
+//	public MongoItemReader<Recipe> readerMongoRecipes() {
+//		return new MongoItemReaderBuilder<Recipe>()
+////				.template(mongoTemplate)
+//				.sorts(new HashMap<>() {{
+//					put("_id", Direction.ASC);
+//				}})
+//				.targetType(Recipe.class)
+//				.jsonQuery("{}, { 'ingredients.name': 1 }") // Only fetch the ID and ingredient list
+//				.build();
+//	}
+
 	@Bean
-	public ItemWriter<Recipe> writer() {
+	public ItemWriter<Recipe> writerRecipes() {
 		return items -> mongoOperations.insertAll(items).collectList().block();
 	}
+
+//	@Bean
+//	public ItemWriter<Collection<Ingredient>> writerIngredients() {
+//		return items -> items.forEach(items2 -> mongoOperations.insertAll(items2).collectList().block());
+//	}
 
 }

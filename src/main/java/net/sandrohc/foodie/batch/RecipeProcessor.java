@@ -23,6 +23,7 @@ import net.sandrohc.foodie.model.UnitConverter;
 import net.sandrohc.foodie.model.RecipeIngredient;
 import net.sandrohc.foodie.model.RecipeNutrition;
 import net.sandrohc.foodie.model.RecipeStep;
+import net.sandrohc.foodie.model.UnitType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -37,7 +38,7 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 	private static final Pattern PATTERN_ID         = Pattern.compile("^https?://(?:www\\.)?allrecipes\\.com/recipe/(\\d{1,10})/");
 	private static final Pattern PATTERN_SERVINGS   = Pattern.compile("^(\\d{1,4})");
 	private static final Pattern PATTERN_STEP       = Pattern.compile("^Step \\d{1,3} ?");
-	private static final Pattern PATTERN_INGREDIENT = Pattern.compile("^\\(?(?<quantity>(?:\\d|/|\\.)+|\\\\u\\w*)? ?(?<unit>tablespoons?|teaspoons?|ounces?|fluid ounces?|cups?|pints?|quarts?|gallons?|stones?)?\\)? ?(?<name>.*?)(?:, ?(?<extra>.*))?$");
+	private static final Pattern PATTERN_INGREDIENT = Pattern.compile("^\\(?(?<quantity>(?:\\d|/|\\.)+|\\\\u\\w*)? ?(?<unit>tablespoons?|teaspoons?|ounces?|fluid ounces?|cups?|pints?|quarts?|gallons?|stones?|pounds?)?\\)? ?(?<name>.*?)(?:, ?(?<extra>.*))?$");
 	private static final Pattern PATTERN_NUTRITION  = Pattern.compile("^ ?(?<quantity>(?:\\d|/|\\.)+|\\\\u\\w*)? ?(?<unit>g|mg?)? ?(?<type>.*)?$");
 
 
@@ -144,6 +145,8 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 		replacements.put("\u2151", "1/9");
 		replacements.put("\u2152", "1/10");
 
+		replacements.put("1 (", "(");
+
 		for (Entry<String, String> replacement : replacements.entrySet()) {
 			str = str.replace(replacement.getKey(), replacement.getValue());
 		}
@@ -175,10 +178,15 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 			}
 		}
 
+		String textImperial = quantityStr;
+		if (unit.getType() != UnitType.TYPELESS) {
+			textImperial += " " +  matcher.group("unit");
+		}
+
 		String name = matcher.group("name");
 		String extra = matcher.group("extra");
 
-		return new RecipeIngredient(name, unit.getType(), unit.getAmount(), extra, str);
+		return new RecipeIngredient(name, unit.getType(), unit.getAmount(), extra, str, textImperial, "WIP");
 	}
 
 	private Double processRatio(String str) {
@@ -255,7 +263,12 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 			return null;
 		}
 
-		return new RecipeNutrition(nutrition.getType(), nutrition.getAmount(), str);
+		String text = quantityStr;
+		if (unit != null && !unit.isEmpty()) {
+			text += " " + unit;
+		}
+
+		return new RecipeNutrition(nutrition.getType(), nutrition.getAmount(), text, str);
 	}
 
 	private static String clean(String str) {
