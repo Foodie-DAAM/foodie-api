@@ -9,6 +9,5 @@ db.getCollection('recipe').createIndex({
 	title: 1,
 });
 db.getCollection('recipe').createIndex({
-	title: 'text',
-	description: 'text'
+	"ingredients.name": 1,
 });

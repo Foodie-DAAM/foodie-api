@@ -33,10 +33,14 @@ db.createUser({
 db.adminCommand({ shutdown: 1 });
 ```
 
+Run the following commands if you wish to dumping and restore the collection data:
+ - `mongodump --host localhost --port 27017 --db foodie --collection recipe`
+ - `mongorestore --host host --port 27017 -u user -p pass dump`
+
 ## Foodie Loader
 Loads scrapped recipes into a database.
 
-*How to use:* start the API service, then call the endpoint at `http://localhost:10000/recipes/refresh`.
+*How to use:* start the API service, then call the endpoint at `http://localhost:10000/recipes/digest`.
 
 ## Foodie Scraper
 Scrapes recipes from https://allrecipes.com.
