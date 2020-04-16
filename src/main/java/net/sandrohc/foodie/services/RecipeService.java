@@ -53,7 +53,7 @@ public class RecipeService {
 
 	public Mono<Page<RecipeSimple>> search(Pageable page, String title, List<String> ingredients) {
 		Query query = new Query().with(page);
-		query.fields().include("title").include("description");
+		query.fields().include("title").include("picture").include("description");
 
 		if (title != null && !title.isBlank()) {
 			query.addCriteria(Criteria.where("title").regex(".*" + title.trim() + ".*", "i"));
@@ -74,7 +74,7 @@ public class RecipeService {
 		LOG.info("Find for: " + page);
 
 		Query query = new Query().with(page);
-		query.fields().include("title").include("description");
+		query.fields().include("title").include("picture").include("description");
 
 		return repository.count()
 				.flatMap(count -> template.find(query, Recipe.class)
