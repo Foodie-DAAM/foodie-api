@@ -19,6 +19,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +30,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.query.Query;
 
 @Configuration
 public class RecipeJob {
@@ -48,11 +50,23 @@ public class RecipeJob {
 	}
 
 	@Bean
-	public Job importRecipeJob(Step stepLoadManager) {
+	public Job importRecipeJob(Step stepClearData, Step stepLoadManager) {
 		return jobBuilderFactory.get("load recipes")
 				.incrementer(new RunIdIncrementer())
-				.flow(stepLoadManager)
+				.flow(stepClearData)
+				.next(stepLoadManager)
 				.end()
+				.build();
+	}
+
+	@Bean
+	public Step stepClearData() {
+		return stepBuilderFactory.get("clear previous data")
+				.tasklet((contribution, chunkContext) -> {
+					// Clear all documents in the "recipe" collection.
+					mongoOperations.remove(new Query(), Recipe.class).subscribe();
+					return RepeatStatus.FINISHED;
+				})
 				.build();
 	}
 

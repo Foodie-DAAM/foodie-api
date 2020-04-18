@@ -5,12 +5,14 @@
 package net.sandrohc.foodie.batch;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -33,13 +35,15 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RecipeProcessor.class);
 
-	private final Set<Integer> processed = ConcurrentHashMap.newKeySet();
+	private final Collection<Integer> processed = ConcurrentHashMap.newKeySet();
 
 	private static final Pattern PATTERN_ID         = Pattern.compile("^https?://(?:www\\.)?allrecipes\\.com/recipe/(\\d{1,10})/");
 	private static final Pattern PATTERN_SERVINGS   = Pattern.compile("^(\\d{1,4})");
 	private static final Pattern PATTERN_STEP       = Pattern.compile("^Step \\d{1,3} ?");
 	private static final Pattern PATTERN_INGREDIENT = Pattern.compile("^\\(?(?<quantity>(?:\\d|/|\\.)+|\\\\u\\w*)? ?(?<unit>tablespoons?|teaspoons?|ounces?|fluid ounces?|cups?|pints?|quarts?|gallons?|stones?|pounds?)?\\)? ?(?<name>.*?)(?:, ?(?<extra>.*))?$");
 	private static final Pattern PATTERN_NUTRITION  = Pattern.compile("^ ?(?<quantity>(?:\\d|/|\\.)+|\\\\u\\w*)? ?(?<unit>g|mg?)? ?(?<type>.*)?$");
+
+	private static final String DEFAULT_PICTURE = "https://images.media-allrecipes.com/images/79591.png";
 
 
 	@Override
@@ -53,7 +57,9 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 		to.setTitle(clean(from.getTitle()));
 		to.setDescription(clean(from.getDescription()));
 		to.setDuration(from.getTotal_time());
-		to.setPicture(from.getPicture());
+
+		if (!DEFAULT_PICTURE.equals(from.getPicture()))
+			to.setPicture(from.getPicture());
 
 		int id = processId(from, to);
 
@@ -115,6 +121,8 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 				.map(RecipeProcessor::clean)
 				.map(this::processIngredient)
 				.filter(Objects::nonNull)
+				.distinct()
+				.sorted(Comparator.comparing(RecipeIngredient::getName))
 				.collect(Collectors.toList()));
 	}
 
@@ -179,12 +187,33 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 		}
 
 		String textImperial = quantityStr;
-		if (unit.getType() != UnitType.TYPELESS) {
+		if (unit.getType() != UnitType.TYPELESS)
 			textImperial += " " +  matcher.group("unit");
-		}
+		textImperial = textImperial.trim();
 
 		String name = matcher.group("name");
 		String extra = matcher.group("extra");
+
+		// remove partial measures (like "2 1/2 cups water")
+		BiFunction<String, String, String> clean = (val, search) -> {
+			int idx = val.indexOf("cups");
+			return idx == -1 ? val : val.substring(idx).trim();
+		};
+		name = clean.apply(name, "cups");
+		name = clean.apply(name, "pounds");
+		name = clean.apply(name, "ounces");
+		name = clean.apply(name, "tablespoons");
+		name = clean.apply(name, "teaspoons");
+
+		// remove type of package
+		if (name.startsWith("can"))
+			name = name.substring("can".length()).trim();
+		if (name.startsWith("jar"))
+			name = name.substring("jar".length()).trim();
+		if (name.startsWith("package"))
+			name = name.substring("package".length()).trim();
+		if (name.startsWith("bottled"))
+			name = name.substring("bottled".length()).trim();
 
 		return new RecipeIngredient(name, unit.getType(), unit.getAmount(), extra, str, textImperial, "WIP");
 	}

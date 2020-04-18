@@ -25,11 +25,7 @@ public class RecipeIngredient {
 	@EqualsAndHashCode.Include
 	@ToString.Include
 	private String name;
-
-	@EqualsAndHashCode.Include
 	private UnitType type;
-
-	@EqualsAndHashCode.Include
 	private float amount;
 	private String extra;
 
