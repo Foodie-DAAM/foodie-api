@@ -155,9 +155,8 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 
 		replacements.put("1 (", "(");
 
-		for (Entry<String, String> replacement : replacements.entrySet()) {
+		for (Entry<String, String> replacement : replacements.entrySet())
 			str = str.replace(replacement.getKey(), replacement.getValue());
-		}
 
 		Matcher matcher = PATTERN_INGREDIENT.matcher(str);
 
@@ -194,26 +193,51 @@ public class RecipeProcessor implements ItemProcessor<RecipeJson, Recipe> {
 		String name = matcher.group("name");
 		String extra = matcher.group("extra");
 
+		name = name.replace("(optional)", "");
+
+		if (name.endsWith(":"))
+			name = name.substring(0, name.length() - 1);
+
 		// remove partial measures (like "2 1/2 cups water")
+		BiFunction<String, String, String> clean2 = (val, search) -> {
+			int idx = val.indexOf(search);
+			return idx == -1 ? val : val.substring(idx);
+		};
 		BiFunction<String, String, String> clean = (val, search) -> {
-			int idx = val.indexOf("cups");
-			return idx == -1 ? val : val.substring(idx).trim();
+			val = clean2.apply(val, search + ' ');
+			return clean2.apply(val, search + ')');
 		};
 		name = clean.apply(name, "cups");
+		name = clean.apply(name, "cup");
 		name = clean.apply(name, "pounds");
+		name = clean.apply(name, "pound");
 		name = clean.apply(name, "ounces");
+		name = clean.apply(name, "ounce");
 		name = clean.apply(name, "tablespoons");
+		name = clean.apply(name, "tablespoon");
 		name = clean.apply(name, "teaspoons");
+		name = clean.apply(name, "teaspoon");
+		name = clean.apply(name, "cans");
+		name = clean.apply(name, "can");
+		name = clean.apply(name, "jars");
+		name = clean.apply(name, "jar");
+		name = clean.apply(name, "packages");
+		name = clean.apply(name, "package");
+		name = clean.apply(name, "bottles");
+		name = clean.apply(name, "bottle");
+		name = clean.apply(name, "containers");
+		name = clean.apply(name, "container");
+		name = clean.apply(name, "boxes");
+		name = clean.apply(name, "boxed");
+		name = clean.apply(name, "box");
+		name = clean.apply(name, "envelopes");
+		name = clean.apply(name, "envelope");
+		name = clean.apply(name, "squares");
+		name = clean.apply(name, "square");
+		name = clean.apply(name, "packets");
+		name = clean.apply(name, "packet");
 
-		// remove type of package
-		if (name.startsWith("can"))
-			name = name.substring("can".length()).trim();
-		if (name.startsWith("jar"))
-			name = name.substring("jar".length()).trim();
-		if (name.startsWith("package"))
-			name = name.substring("package".length()).trim();
-		if (name.startsWith("bottled"))
-			name = name.substring("bottled".length()).trim();
+		name = name.trim();
 
 		return new RecipeIngredient(name, unit.getType(), unit.getAmount(), extra, str, textImperial, "WIP");
 	}
